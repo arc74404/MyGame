@@ -126,17 +126,20 @@ Gui::Graphic::loadCharTexture()
     char_texture['+'].emplace_back(int_rect);
     int_rect.left += 8;
     char_texture['.'].emplace_back(int_rect);
+    int_rect.left += 8;
+    char_texture[' '].emplace_back(int_rect);
 }
 
 void
 Gui::Graphic::loadTextures()
 {
     Gui::Graphic::Indicator::loadTexture();
+    Gui::Graphic::TimeCountdown::loadTexture();
     Gui::Graphic::InventoryInterface::loadTexture();
 
     loadCharTexture();
 
-    player_interface.loadTextures();
+    player_interface.create();
 
     inventory_interface.create();
 
@@ -213,10 +216,10 @@ Gui::Graphic::drawWorld()
 
                     const WorldCell& p_cell = location.getCell(l_x, l_y);
 
-                    sf::RectangleShape shape;
-
                     if (p_cell.isMain() && !p_cell.isEmpty())
                     {
+                        sf::RectangleShape shape;
+
                         sf::Vector2i picture_shift =
                             p_cell.getObjectPtr()->getPictureShift();
 
@@ -235,19 +238,26 @@ Gui::Graphic::drawWorld()
                         PhysicalObject::Type t =
                             p_cell.getObjectPtr()->getType();
 
+                        // if (Gui::getInstance()->isMouseInRectangle(
+                        //         shape.getPosition(), shape.getSize()))
+                        // {
+                        //     shape.setOutlineColor(sf::Color::Red);
+                        //     shape.setOutlineThickness(3);
+                        // }
+
                         shape.setTexture(
                             physical_object_texture.getTexturePtr());
 
                         shape.setTextureRect(
                             physical_object_texture
                                 [t][p_cell.getObjectPtr()->getPictureIndex()]);
+                        Gui::getInstance()->m_window.draw(shape);
                     }
-                    else
-                    {
-                        shape.setPosition(player_position_window - difference);
-                        shape.setFillColor(transparent);
-                    }
-                    Gui::getInstance()->m_window.draw(shape);
+                    // else
+                    // {
+                    //     shape.setPosition(player_position_window -
+                    //     difference); shape.setFillColor(transparent);
+                    // }
                 }
             }
         }

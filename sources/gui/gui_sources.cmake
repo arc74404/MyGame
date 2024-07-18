@@ -20,6 +20,8 @@ set(
 	player_interface.cpp
 
 	indicator.cpp
+
+	time_countdown.cpp
 	
 	inventory_interface.cpp
 

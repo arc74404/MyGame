@@ -130,6 +130,9 @@ World::update()
     for (std::set<WorldCell>::iterator it = updatable_cell_list.cbegin();
          it != updatable_cell_list.cend(); it++)
     {
+        if (it->getObjectPtr()->getStrength() <= 0)
+        {
+        }
         it->getObjectPtr()->update();
     }
 }

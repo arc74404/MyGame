@@ -6,6 +6,37 @@
 #include "gui.hpp"
 
 void
+Gui::Graphic::PlayerInterface::create()
+{
+    loadTextures();
+
+    sf::Vector2u window_size = Gui::getInstance()->m_window.getSize();
+    sf::Vector2f shape_size  = {window_size.x * 0.3f, window_size.y * 0.05f};
+    sf::Vector2f shape_position1 = {window_size.y * 0.03f,
+                                    window_size.y * 0.03f};
+    health_indicator.setSize(shape_size);
+    health_indicator.setPosition(shape_position1);
+
+    sf::Vector2f shape_position2 = {shape_position1.x,
+                                    shape_position1.y + shape_size.y +
+                                        window_size.y * 0.05f};
+    hunger_indicator.setSize(shape_size);
+    hunger_indicator.setPosition(shape_position2);
+
+    sf::Vector2f shape_position3 = {shape_position2.x,
+                                    shape_position2.y + shape_size.y +
+                                        window_size.y * 0.05f};
+    recharge_hit_countdown.setSize(shape_size);
+    recharge_hit_countdown.setPosition(shape_position3);
+
+    sf::Vector2f left_corner_size = {
+        shape_size.x, shape_position2.y + shape_size.y - shape_position1.y};
+
+    left_corner.setSize(left_corner_size);
+    left_corner.setPosition(shape_position1);
+}
+
+void
 Gui::Graphic::PlayerInterface::update()
 {
     sf::Vector2f displacement_vector =
@@ -85,12 +116,14 @@ Gui::Graphic::PlayerInterface::loadTextures()
 
     health_indicator.create();
     hunger_indicator.create();
+    recharge_hit_countdown.create();
 
     health_indicator.setDesignation("health");
     hunger_indicator.setDesignation("hunger");
 
     health_indicator.setColor(sf::Color::Red);
     hunger_indicator.setColor(sf::Color::Yellow);
+    recharge_hit_countdown.setColor(sf::Color::Yellow);
 
     left_corner.setFillColor(sf::Color(255, 255, 255, 140));
 }
@@ -144,36 +177,25 @@ Gui::Graphic::PlayerInterface::drawPlayer()
 void
 Gui::Graphic::PlayerInterface::drawInterface()
 {
-    sf::Vector2u window_size = Gui::getInstance()->m_window.getSize();
-    sf::Vector2f shape_size  = {window_size.x * 0.3f, window_size.y * 0.05f};
-    sf::Vector2f shape_position1 = {window_size.y * 0.03f,
-                                    window_size.y * 0.03f};
-
     int procent_health = Player::getInstance()->getProcentHealth() * 100;
     int procent_hunger = Player::getInstance()->getProcentHunger() * 100;
 
-    health_indicator.setPosition(shape_position1);
-    health_indicator.setSize(shape_size);
     health_indicator.setProcent(procent_health);
-
-    sf::Vector2f shape_position2 = {shape_position1.x,
-                                    shape_position1.y + shape_size.y +
-                                        window_size.y * 0.05f};
-
-    hunger_indicator.setPosition(shape_position2);
-    hunger_indicator.setSize(shape_size);
     hunger_indicator.setProcent(procent_hunger);
-
-    sf::Vector2f left_corner_size = {
-        shape_size.x, shape_position2.y + shape_size.y - shape_position1.y};
-
-    left_corner.setSize(left_corner_size);
-    left_corner.setPosition(shape_position1);
 
     Gui::getInstance()->m_window.draw(left_corner);
 
     health_indicator.draw();
     hunger_indicator.draw();
+
+    if (!Player::getInstance()->isReadyToHit())
+    {
+        recharge_hit_countdown.setFullTime(
+            Player::getInstance()->getFullRechargeTimeAsSeconds());
+        recharge_hit_countdown.setSeconds(
+            Player::getInstance()->getLeftRechargeTimeAsSeconds());
+        recharge_hit_countdown.draw();
+    }
 }
 
 void

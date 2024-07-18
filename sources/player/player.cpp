@@ -43,7 +43,7 @@ Player::Player() : m_status(Status::STAND), hunger(100), health(100)
     st_obj_ptr = std::make_shared<Instrument>(
         Instrument(Instrument::InstrumentType::PICKAXE, 2));
 
-     hand_vector[1].setObject(st_obj_ptr);
+    hand_vector[1].setObject(st_obj_ptr);
 
     clock_recharge.restart();
 }
@@ -118,6 +118,19 @@ segments_cross(sf::Vector2f a[], sf::Vector2f b[])
     }
 
     return dot;
+}
+
+void
+Player::restartTimeRechargeAsSeconds(float tt)
+{
+    clock_recharge.restart();
+    time_recharge_seconds = tt;
+}
+
+bool
+Player::isReadyToHit()
+{
+    return clock_recharge.getElapsedTime().asSeconds() >= time_recharge_seconds;
 }
 
 void
@@ -503,4 +516,16 @@ Player::Flank
 Player::getFlank()
 {
     return movement_data.m_flank;
+}
+
+float
+Player::getLeftRechargeTimeAsSeconds()
+{
+    return time_recharge_seconds - clock_recharge.getElapsedTime().asSeconds();
+}
+
+float
+Player::getFullRechargeTimeAsSeconds()
+{
+    return time_recharge_seconds;
 }

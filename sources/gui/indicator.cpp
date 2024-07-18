@@ -57,7 +57,7 @@ Gui::Graphic::Indicator::setSize(const sf::Vector2f& s2)
     sf::Vector2f s = s2;
     s.x -= designation.size(); // whitespaces
 
-    m_size = s;
+    m_size = s2;
 
     float t1 = 0.4;
     float t2 = 0.4;
@@ -82,6 +82,8 @@ Gui::Graphic::Indicator::setSize(const sf::Vector2f& s2)
 void
 Gui::Graphic::Indicator::setPosition(const sf::Vector2f& p2)
 {
+    m_position = p2;
+
     sf::Vector2f p = p2;
 
     for (int i = 0; i < designation.size(); ++i)
@@ -151,4 +153,10 @@ Gui::Graphic::Indicator::setProcent(int procent)
         std::cerr << e.what() << '\n';
     }
     setSize(m_size);
+    setPosition(m_position);
+
+    // std::cout << indicator_border_shape.getPosition().x << " "
+    //           << indicator_border_shape.getPosition().y << '\n';
+
+    // std::cout << m_size.x << " " << m_size.y << '\n';
 }

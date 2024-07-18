@@ -5,7 +5,7 @@
 const int Bush::MAX_BERRY_COUNT = 100;
 const int Bush::MAX_STRENGTH    = 100;
 
-Bush::Bush(Type bt) : PhysicalObject(bt, {1, 1}, 100), berry_count(0)
+Bush::Bush(Type bt) : PhysicalObject(bt, {1, 1}, 7), berry_count(0)
 {
     picture_shift = {0, 0};
     picture_size  = {1, 1};

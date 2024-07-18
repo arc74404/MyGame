@@ -19,6 +19,8 @@ public:
 
     void handleEvents();
 
+    bool isMouseInRectangle(const sf::Vector2f& pos, const sf::Vector2f& s);
+
     sf::Vector2f getMousePosition();
 
     sf::Vector2f getWindowCentre();
@@ -168,6 +170,45 @@ private:
 
             void setProcent(int procent);
 
+        protected:
+            static sf::Texture indicator_border_texture;
+
+            sf::RectangleShape indicator_shape;
+
+            sf::RectangleShape indicator_border_shape;
+
+            sf::Vector2f m_size;
+            sf::Vector2f m_position;
+
+            std::vector<sf::RectangleShape> procent_digit_shape_list;
+
+            std::vector<sf::RectangleShape> designation_letter_shape_list;
+
+            std::string designation;
+
+            int int_procent;
+            std::string str_procent;
+        };
+
+        class TimeCountdown
+        {
+        public:
+            static void loadTexture();
+
+            void create();
+
+            void draw();
+
+            void setColor(const sf::Color& color);
+
+            void setSize(const sf::Vector2f& s2);
+
+            void setPosition(const sf::Vector2f& p2);
+
+            void setSeconds(float s);
+
+            void setFullTime(float t);
+
         private:
             static sf::Texture indicator_border_texture;
 
@@ -175,15 +216,16 @@ private:
 
             sf::RectangleShape indicator_border_shape;
 
-            std::vector<sf::RectangleShape> procent_digit_shape_list;
-            std::vector<sf::RectangleShape> designation_letter_shape_list;
+            std::vector<sf::RectangleShape> seconds_digit_shape_list;
 
             sf::Vector2f m_size;
+            sf::Vector2f m_position;
 
-            std::string designation;
+            std::string str_left_seconds;
 
-            int int_procent;
-            std::string str_procent;
+            float left_seconds;
+
+            float full_time;
         };
 
         class PlayerInterface
@@ -193,7 +235,7 @@ private:
             friend void Gui::handlePlayerActions();
 
         public:
-            void loadTextures();
+            void create();
 
             void drawPlayer();
 
@@ -204,6 +246,8 @@ private:
             void zoom();
 
         private:
+            void loadTextures();
+
             MyTexture<Player::Status> hero_texture;
             sf::RectangleShape hero_shape;
 
@@ -212,6 +256,8 @@ private:
             Indicator health_indicator;
 
             Indicator hunger_indicator;
+
+            TimeCountdown recharge_hit_countdown;
         };
 
     private:

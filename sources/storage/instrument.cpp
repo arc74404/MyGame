@@ -1,5 +1,6 @@
 #include "instrument.hpp"
 
+#include "player/player.hpp"
 Instrument::Instrument(InstrumentType it, int level)
     : StorageObject(StorageObject::Type::INSTRUMENT), instrument_type(it),
       m_level(level)
@@ -25,25 +26,30 @@ Instrument::use(const WorldCell& world_cell)
 
     float damage_power = 0;
 
-    if (instrument_type == InstrumentType::AXE)
+    if (Player::getInstance()->isReadyToHit())
     {
-        damage_power = standart_damage_power * (2 + m_level * 0.5);
-
-        if (obj_type == PhysicalObject::Type::APPLE_TREE ||
-            obj_type == PhysicalObject::Type::BIRCH_TREE)
+        if (instrument_type == InstrumentType::AXE)
         {
-            world_cell.getObjectPtr()->damage(damage_power);
-            // std::cout << "hit";
+            damage_power = standart_damage_power * (2 + m_level * 5);
+
+            if (obj_type == PhysicalObject::Type::APPLE_TREE ||
+                obj_type == PhysicalObject::Type::BIRCH_TREE)
+            {
+                world_cell.getObjectPtr()->damage(damage_power);
+                Player::getInstance()->restartTimeRechargeAsSeconds(
+                    standart_damage_power * 2);
+            }
         }
-    }
-    else if (instrument_type == InstrumentType::PICKAXE)
-    {
-        damage_power = standart_damage_power * (2 + m_level * 0.5);
-
-        if (obj_type == PhysicalObject::Type::STONE)
+        else if (instrument_type == InstrumentType::PICKAXE)
         {
-            world_cell.getObjectPtr()->damage(damage_power);
-            // std::cout << "hit";
+            damage_power = standart_damage_power * (2 + m_level * 5);
+
+            if (obj_type == PhysicalObject::Type::STONE)
+            {
+                world_cell.getObjectPtr()->damage(damage_power);
+                Player::getInstance()->restartTimeRechargeAsSeconds(
+                    standart_damage_power * 2);
+            }
         }
     }
 }

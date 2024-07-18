@@ -44,7 +44,6 @@ public:
 
 public:
     static Player* getInstance();
-    sf::Clock clock_recharge;
 
     void update();
 
@@ -53,6 +52,10 @@ public:
     void stopMoving();
 
     void operate(const WorldCell&, const StorageCell&);
+
+    void restartTimeRechargeAsSeconds(float tt);
+
+    bool isReadyToHit();
 
     ////////////////////////////
 
@@ -71,6 +74,9 @@ public:
     float getProcentHealth();
 
     float getProcentHunger();
+
+    float getFullRechargeTimeAsSeconds();
+    float getLeftRechargeTimeAsSeconds();
 
     int getInventorySize();
 
@@ -99,6 +105,9 @@ private:
     Storage hand_vector;
 
     const WorldCell* world_cell_ptr;
+
+    sf::Clock clock_recharge;
+    float time_recharge_seconds;
 
     ////////////////////////////////
 

@@ -24,19 +24,17 @@ StorageObject::use(const WorldCell& world_cell)
 {
     PhysicalObject::Type obj_type = world_cell.getObjectPtr()->getType();
 
-    float t =
-        Player::getInstance()->clock_recharge.getElapsedTime().asSeconds();
-
     // std::cout << t << '\n';
 
-    if (t >= standart_time_recharge_seconds)
+    if (Player::getInstance()->isReadyToHit())
     {
         if (obj_type == PhysicalObject::Type::BUSH_BLUEBERRY ||
             obj_type == PhysicalObject::Type::BUSH_STRAWBERRY)
         {
             world_cell.getObjectPtr()->damage(standart_damage_power);
 
-            Player::getInstance()->clock_recharge.restart();
+            Player::getInstance()->restartTimeRechargeAsSeconds(
+                standart_time_recharge_seconds);
         }
     }
 }

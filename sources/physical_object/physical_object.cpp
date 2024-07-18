@@ -19,7 +19,7 @@ void
 PhysicalObject::damage(float dd)
 {
     strength -= dd;
-    std::cout << strength << "\n";
+    // std::cout << strength << "\n";
 }
 
 PhysicalObject::Type

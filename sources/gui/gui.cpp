@@ -27,6 +27,18 @@ Gui::getInstance()
     return &inst;
 }
 
+bool
+Gui::isMouseInRectangle(const sf::Vector2f& pos, const sf::Vector2f& s)
+{
+    sf::Vector2f point = getMousePosition();
+    bool in_x = (point.x > pos.x) &&
+                (point.x < pos.x + s.x);
+    bool in_y = (point.y > pos.y) &&
+                (point.y < pos.y + s.y);
+
+    return in_x && in_y;
+}
+
 sf::Vector2f
 Gui::getMousePosition()
 {
@@ -89,4 +101,3 @@ Gui::handlePlayerActions()
 
     // Player::getInstance()->handleAction(displacement_vector);
 }
-

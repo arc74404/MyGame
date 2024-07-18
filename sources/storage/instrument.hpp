@@ -21,6 +21,9 @@ public:
     void use(const WorldCell& world_cell) override;
 
 private:
+
+    // static float 
+
     InstrumentType instrument_type;
 
     int m_level;

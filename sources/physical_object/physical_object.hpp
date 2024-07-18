@@ -37,6 +37,8 @@ public:
     sf::Vector2i getPictureShift();
     sf::Vector2i getPictureSize();
 
+    // bool isAtGunpoint();
+
     virtual int getPictureIndex() const = 0;
 
     virtual bool isObstructive() const = 0;

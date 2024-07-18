@@ -3,7 +3,7 @@
 #include "storage/instrument.hpp"
 const int Stone::MAX_STRENGTH = 100;
 
-Stone::Stone() : PhysicalObject(Type::STONE, {2, 2}, 1000)
+Stone::Stone() : PhysicalObject(Type::STONE, {2, 2}, 20)
 {
     picture_shift = {0, 0};
     picture_size  = {2, 2};
