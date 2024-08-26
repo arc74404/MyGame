@@ -14,17 +14,25 @@ class StorageCell
 public:
     StorageCell();
 
-    static void swap(StorageCell* first, StorageCell* second);
+    static void swap(StorageCell& first, StorageCell& second);
 
     void setObject(StorageObjectPtr obj_ptr, int count = 1);
 
+    void setCount(int c);
+
     const StorageObjectPtr getObject() const;
 
-    void clear();
+    virtual void clear();
 
-    int getCount();
+    int getCount() const;
 
-private:
+    void operator=(const StorageCell& other);
+
+    static int getCountLimit();
+
+protected:
+    static int count_limit;
+
     StorageObjectPtr storage_object_ptr;
 
     int m_count;

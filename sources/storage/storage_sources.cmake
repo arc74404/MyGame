@@ -15,4 +15,7 @@ set(
 
 	resource.hpp
 	resource.cpp
+
+	craft_menu.hpp
+	craft_menu.cpp
 )

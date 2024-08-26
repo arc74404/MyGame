@@ -1,5 +1,15 @@
 #include "rectangle_button.hpp"
 
+bool
+isPointInRectangle(const sf::Vector2f& point, const sf::Vector2f& position,
+                   const sf::Vector2f& size)
+{
+    bool in_x = (point.x > position.x) && (point.x < position.x + size.x);
+    bool in_y = (point.y > position.y) && (point.y < position.y + size.y);
+
+    return in_x && in_y;
+}
+
 RectangleButton::RectangleButton() : BaseButton(ShapeType::RECTANGLE)
 {
 }
@@ -7,20 +17,14 @@ RectangleButton::RectangleButton() : BaseButton(ShapeType::RECTANGLE)
 bool
 RectangleButton::isPointInButton(const sf::Vector2f& point) const
 {
-    sf::Vector2f m_position = shape.getPosition();
-
-    bool in_x = (point.x > m_position.x) &&
-                (point.x < m_position.x + shape.getSize().x);
-    bool in_y = (point.y > m_position.y) &&
-                (point.y < m_position.y + shape.getSize().y);
-
-    return in_x && in_y;
+    return isPointInRectangle(point, shape.getPosition(), shape.getSize());
 }
 
 void
 RectangleButton::setSize(const sf::Vector2f& size)
 {
     shape.setSize(size);
+    // shape.setOutlineThickness(3);
 }
 
 sf::Vector2f

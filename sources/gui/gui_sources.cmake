@@ -25,7 +25,11 @@ set(
 	
 	inventory_interface.cpp
 
-	intermediate_buffer.cpp
+	transfer_cell.cpp
+
+	craft_menu_interface.cpp
+
+	craft_row_interface.cpp
 
 	inventory_cell_button.hpp
 	inventory_cell_button.cpp
@@ -33,5 +37,7 @@ set(
 	is_key_button_clicked_off.hpp
 	is_key_button_clicked_off.cpp
 
+	texture_storage.hpp
+	texture_storage.cpp
 
 )

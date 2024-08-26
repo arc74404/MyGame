@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "app/app.hpp"
+#include "dropped_object/dropped_resource.hpp"
 #include "gui/gui.hpp"
 #include "storage/instrument.hpp"
 #include "world/cell.hpp"
@@ -11,6 +12,8 @@
 
 Player::Player() : m_status(Status::STAND), hunger(100), health(100)
 {
+    work_radius = WorldCell::getLength() * 3;
+
     movement_data.m_position = World::getInstance()->getCentreCoordinate();
 
     movement_data.speed = 40;
@@ -35,13 +38,13 @@ Player::Player() : m_status(Status::STAND), hunger(100), health(100)
 
         hand_vector[i].setObject(st_obj_ptr);
     }
-    StorageObjectPtr st_obj_ptr = std::make_shared<Instrument>(
-        Instrument(Instrument::InstrumentType::PICKAXE, 0));
+    StorageObjectPtr st_obj_ptr =
+        std::make_shared<Instrument>(Instrument(Instrument::Type::PICKAXE, 2));
 
     hand_vector[0].setObject(st_obj_ptr);
 
-    st_obj_ptr = std::make_shared<Instrument>(
-        Instrument(Instrument::InstrumentType::PICKAXE, 2));
+    st_obj_ptr =
+        std::make_shared<Instrument>(Instrument(Instrument::Type::AXE, 2));
 
     hand_vector[1].setObject(st_obj_ptr);
 
@@ -53,6 +56,11 @@ Player::getInstance()
 {
     static Player inst;
     return &inst;
+}
+
+void
+Player::addStorageObject(const StorageCell& st_cell)
+{
 }
 
 void
@@ -214,7 +222,7 @@ Player::align(sf::IntRect int_rect)
     {
         if (abs(penetration_x) < abs(penetration_y))
         {
-            movement_data.m_position.x += penetration_x;
+            movement_data.m_position.x += penetration_x * 1.01;
             // std::cout << "X:\n";
             // std::cout << "x: " << penetration_x << '\n';
             // std::cout << "y: " << penetration_y << '\n';
@@ -222,7 +230,7 @@ Player::align(sf::IntRect int_rect)
         }
         else
         {
-            movement_data.m_position.y += penetration_y;
+            movement_data.m_position.y += penetration_y * 1.01;
             // std::cout << "Y:\n";
             // std::cout << "x: " << penetration_x << '\n';
             // std::cout << "y: " << penetration_y << '\n';
@@ -438,9 +446,24 @@ Player::update()
 }
 
 void
-Player::operate(const WorldCell& world_cell, const StorageCell& using_hand)
+Player::operate(const Location& location, const sf::Vector2f& mouse_coordinate,
+                const StorageCell& using_hand)
 {
-    using_hand.getObject()->use(world_cell);
+    sf::Vector2f player_position = Player::getInstance()->getPosition();
+
+    int loc_size = Location::getLength() * WorldCell::getLength();
+
+    const WorldCell& world_cell =
+        location.getCell({float(int(mouse_coordinate.x) % loc_size),
+                          float(int(mouse_coordinate.y) % loc_size)});
+
+    if (std::pow((mouse_coordinate.x - player_position.x), 2) +
+            std::pow((mouse_coordinate.y - player_position.y), 2) <=
+        std::pow(Player::getInstance()->getWorkRadius(), 2))
+    {
+        using_hand.getObject()->use(world_cell);
+    }
+    // std::cout << world_cell.getObjectPtr()->getStrength() << '\n';
 }
 
 void
@@ -449,6 +472,270 @@ Player::stopMoving()
     movement_data.next_position = movement_data.m_position;
 
     m_status = Status::STAND;
+}
+
+StorageObjectPtr
+convertToStorageObjectPtr(const std::shared_ptr<DroppedObject>& dropped_object)
+{
+    if (dropped_object->getGeneralType() ==
+        StorageObject::GeneralType::RESOURCE)
+    {
+        return std::make_shared<Resource>(
+            std::reinterpret_pointer_cast<Resource>(dropped_object)->getType());
+    }
+    else if (dropped_object->getGeneralType() ==
+             StorageObject::GeneralType::INSTRUMENT)
+    {
+        return std::make_shared<Instrument>(
+            std::reinterpret_pointer_cast<Instrument>(dropped_object)
+                ->getType(),
+            2);
+    }
+    return std::make_shared<StorageObject>(
+        StorageObject(StorageObject::Type::HAND));
+}
+
+void
+Player::deleteIngredients(const std::vector<StorageCell>& ing_vec)
+{
+    static std::unordered_map<StorageObject::Type, int> data;
+    data.clear();
+
+    for (const auto& obj : ing_vec)
+    {
+        if (obj.getObject()->getType() != StorageObject::Type::HAND)
+        {
+            data[obj.getObject()->getType()] += obj.getCount();
+
+            // std::cout << int(obj.getObject()->getType()) << " "
+            //           << obj.getCount() << '\n';
+        }
+    }
+
+    for (int i = 0; i < inventory.size(); ++i)
+    {
+
+        int remainder =
+            data[inventory[i].getObject()->getType()] - inventory[i].getCount();
+        // std::cout << data[inventory[i].getObject()->getType()] << "  "
+        //           << inventory[i].getCount() << '\n';
+
+        if (remainder <= 0)
+        {
+            inventory[i].setCount(-remainder);
+            data[inventory[i].getObject()->getType()] = 0;
+        }
+        else
+        {
+            inventory[i].setCount(0);
+            data[inventory[i].getObject()->getType()] = remainder;
+        }
+    }
+    for (int i = 0; i < hand_vector.size(); ++i)
+    {
+
+        int remainder =
+            data[inventory[i].getObject()->getType()] - inventory[i].getCount();
+        // std::cout << data[inventory[i].getObject()->getType()] << "  "
+        //           << inventory[i].getCount() << '\n';
+
+        if (remainder <= 0)
+        {
+            inventory[i].setCount(-remainder);
+            data[inventory[i].getObject()->getType()] = 0;
+        }
+        else
+        {
+            inventory[i].setCount(0);
+            data[inventory[i].getObject()->getType()] = remainder;
+        }
+    }
+}
+
+void
+Player::take(const CraftMenu::CraftRow& craft_row)
+{
+    const StorageCell& st_cell = craft_row.result_object;
+
+    for (int i = 0; i < inventory.size(); ++i)
+    {
+        if (inventory[i].getObject()->getType() ==
+                st_cell.getObject()->getType() &&
+            inventory[i].getObject()->getGeneralType() !=
+                StorageObject::GeneralType::INSTRUMENT)
+        {
+            int remainder = st_cell.getCount() + inventory[i].getCount() -
+                            StorageCell::getCountLimit();
+            if (remainder <= 0)
+            {
+                inventory[i].setCount(st_cell.getCount() +
+                                      inventory[i].getCount());
+                deleteIngredients(craft_row.ingredient_vector);
+                break;
+            }
+            else
+            {
+                inventory[i].setCount(StorageCell::getCountLimit());
+                continue;
+            }
+        }
+        if (inventory[i].getCount() == 0)
+        {
+            inventory[i].setObject(st_cell.getObject(), st_cell.getCount());
+            deleteIngredients(craft_row.ingredient_vector);
+            break;
+        }
+    }
+    inventory_and_hand_data.clear();
+
+    for (const auto& obj : inventory)
+    {
+        if (obj.getObject()->getType() != StorageObject::Type::HAND)
+        {
+            inventory_and_hand_data[obj.getObject()->getType()] +=
+                obj.getCount();
+
+            // std::cout << int(obj.getObject()->getType()) << " "
+            //           << obj.getCount() << '\n';
+        }
+    }
+    for (const auto& obj : hand_vector)
+    {
+        if (obj.getObject()->getType() != StorageObject::Type::HAND)
+        {
+            inventory_and_hand_data[obj.getObject()->getType()] +=
+                obj.getCount();
+
+            // std::cout << int(obj.getObject()->getType()) << " "
+            //           << obj.getCount() << '\n';
+        }
+    }
+    // std::cout << "--------\n";
+    // for (const auto& obj : inventory_and_hand_data)
+    // {
+    //     std::cout << int(obj.first) << " " << obj.second << '\n';
+    // }
+    // std::cout << "==========================================\n";
+}
+
+bool
+Player::take(const std::shared_ptr<DroppedObject>& dropped_object)
+{
+    bool res = false;
+    for (int i = 0; i < inventory.size(); ++i)
+    {
+        if (inventory[i].getObject()->getType() == dropped_object->getType())
+        {
+            int remainder = dropped_object->getCount() +
+                            inventory[i].getCount() -
+                            StorageCell::getCountLimit();
+            if (remainder <= 0)
+            {
+                inventory[i].setCount(dropped_object->getCount() +
+                                      inventory[i].getCount());
+                res = true;
+                break;
+            }
+            else
+            {
+                inventory[i].setCount(StorageCell::getCountLimit());
+                dropped_object->setCount(remainder);
+                continue;
+            }
+        }
+        if (inventory[i].getCount() == 0)
+        {
+            StorageObjectPtr obj = convertToStorageObjectPtr(dropped_object);
+
+            inventory[i].setObject(obj, dropped_object->getCount());
+            res = true;
+            break;
+        }
+    }
+    inventory_and_hand_data.clear();
+
+    for (const auto& obj : inventory)
+    {
+        if (obj.getObject()->getType() != StorageObject::Type::HAND)
+        {
+            inventory_and_hand_data[obj.getObject()->getType()] +=
+                obj.getCount();
+
+            // std::cout << int(obj.getObject()->getType()) << " "
+            //           << obj.getCount() << '\n';
+        }
+    }
+    for (const auto& obj : hand_vector)
+    {
+        if (obj.getObject()->getType() != StorageObject::Type::HAND)
+        {
+            inventory_and_hand_data[obj.getObject()->getType()] +=
+                obj.getCount();
+
+            // std::cout << int(obj.getObject()->getType()) << " "
+            //           << obj.getCount() << '\n';
+        }
+    }
+    // std::cout << "--------\n";
+    // for (const auto& obj : inventory_and_hand_data)
+    // {
+    //     std::cout << int(obj.first) << " " << obj.second << '\n';
+    // }
+    // std::cout << "==========================================\n";
+    return res;
+}
+
+bool
+isPointInRectangle(const sf::Vector2f& point, const sf::Vector2f& position,
+                   const sf::Vector2f& size);
+
+void
+Player::manipulate(Location& loc, const sf::Vector2f& mouse_coordinate)
+{
+    // hand_vector[2].setObject(
+    //     std::make_shared<Instrument>(Instrument::InstrumentType::PICKAXE, 1),
+    //     1);
+
+    const std::vector<std::shared_ptr<DroppedObject>>& dropped_object_vector =
+        loc.getDroppedObjectVector();
+
+    sf::Vector2f player_position = Player::getInstance()->getPosition();
+
+    for (int i = 0; i < dropped_object_vector.size(); ++i)
+    {
+        if (isPointInRectangle(
+                mouse_coordinate, dropped_object_vector[i]->getPosition(),
+                {DroppedObject::getLength(), DroppedObject::getLength()}))
+        {
+            if (std::pow((mouse_coordinate.x - player_position.x), 2) +
+                    std::pow((mouse_coordinate.y - player_position.y), 2) <=
+                std::pow(Player::getInstance()->getWorkRadius(), 2))
+            {
+                if (take(dropped_object_vector[i]))
+                {
+                    loc.destroyDroppedObject(i);
+                }
+                break;
+            }
+        }
+    }
+}
+
+bool
+Player::checkIngredientsSufficiency(
+    const std::vector<StorageCell>& ingredient_vector)
+{
+    for (auto& ing : ingredient_vector)
+    {
+        if (inventory_and_hand_data[ing.getObject()->getType()] <
+            ing.getCount())
+        {
+            // std::cout << "false\n";
+            return false;
+        }
+    }
+    // std::cout << "true\n";
+    return true;
 }
 
 int
@@ -528,4 +815,16 @@ float
 Player::getFullRechargeTimeAsSeconds()
 {
     return time_recharge_seconds;
+}
+
+float
+Player::getWorkRadius()
+{
+    return work_radius;
+}
+
+const CraftMenu&
+Player::getCraftMenu() const
+{
+    return craft_menu;
 }

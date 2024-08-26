@@ -9,11 +9,15 @@
 #include "world/cell.hpp"
 
 #include "inventory_cell_button.hpp"
+#include "is_key_button_clicked_off.hpp"
 #include "my_texture.hpp"
 #include "rectangle_button.hpp"
 
 class Gui
 {
+    friend void BaseButton::draw() const;
+    friend void InventoryCellButton::draw() const;
+
 public:
     static Gui* getInstance();
 
@@ -49,8 +53,6 @@ private:
     public:
         Graphic();
 
-        void loadTextures();
-
         void display();
 
         void zoom(float s);
@@ -61,8 +63,76 @@ private:
 
         sf::Vector2f getPlayerPositionInWindow();
 
-        sf::IntRect getCharTextureRect(char ch);
-        const sf::Texture* getCharTexturePtr();
+        void create();
+
+        class CraftMenuInterface
+        {
+        public:
+            enum class Status
+            {
+                CLOSE = 0,
+                OPEN  = 1
+            };
+
+            class CraftRowInterface
+            {
+            public:
+                CraftRowInterface();
+
+                void setSize(const sf::Vector2f&);
+
+                void setPosition(const sf::Vector2f&);
+
+                void setRowIndex(int index);
+
+                void update();
+
+                void draw();
+
+                void operator=(const CraftRowInterface&);
+
+            private:
+                isDefaultButtonClickedOff is_result_object_button_clicked_off;
+
+                std::vector<InventoryCellButton> ingredient_shape_vector;
+
+                InventoryCellButton result_object_button;
+
+                int row_index;
+
+                sf::Vector2f m_size;
+
+                float pass;
+            };
+
+            void create();
+
+            void draw();
+
+            void raiseShift();
+
+            void lowerShift();
+
+            void update();
+
+            Status getStatus();
+
+        private:
+            void updateRowInterfaceVector();
+            void open();
+            void close();
+
+            Status status;
+
+            sf::RectangleShape background;
+
+            int shift;
+
+            RectangleButton up_arrow_button;
+            RectangleButton down_arrow_button;
+
+            std::vector<CraftRowInterface> craft_row_interface_vector;
+        };
 
         class InventoryInterface
         {
@@ -74,8 +144,6 @@ private:
                 CLOSE = 0,
                 OPEN  = 1
             };
-
-            static void loadTexture();
 
             void create();
 
@@ -94,7 +162,7 @@ private:
             Status getStatus();
 
         private:
-            class IntermediateBuffer
+            class TransferCell : public StorageCell
             {
             public:
                 enum class StorageType
@@ -103,32 +171,41 @@ private:
                     INVENTORY = 1
                 };
 
-                IntermediateBuffer();
+                TransferCell();
 
-                void update();
+                void setData(StorageType storage_tt, int ii,
+                             std::shared_ptr<StorageObject> st_obj, int c);
 
-                void moveFromBuffer(StorageType storage_tt, int ii);
-
-                void moveInBuffer(StorageType storage_tt, int ii);
+                StorageType getStorageType();
 
                 int getIndex();
 
-            private:
-                std::shared_ptr<StorageCell> storage_cell_ptr;
+                bool isClear();
 
-                int count;
+                bool isOtherCell();
+
+                void clear() override;
+
+                InventoryCellButton inventory_cell_button;
+
+            private:
+                // int count;
+
+                StorageType storage_type;
+
+                int index;
             };
 
             void open();
             void close();
 
+            void updateTransfer(int index, StorageCell& st_cell,
+                                TransferCell::StorageType storage_type);
+
+
             void updateStorageObjectTexture(
                 const StorageCell& st_cell,
                 InventoryCellButton& inv_cell_button);
-
-            static MyTexture<BaseButton::Status> inventory_cell_texture;
-            static MyTexture<BaseButton::Status> up_down_button_texture;
-            static MyTexture<Instrument::InstrumentType> instruments_texture;
 
             Status status;
 
@@ -142,10 +219,20 @@ private:
             sf::RectangleShape background;
 
             std::vector<InventoryCellButton> inventory_cell_button_vector;
+            // std::vector<isDefaultButtonClickedOff>
+            //     inventory_cell_button_checking_left_click_vector;
+            // std::vector<isDefaultButtonClickedOff>
+            //     inventory_cell_button_checking_right_click_vector;
 
             std::vector<HandCellButton> hand_cell_button_vector;
+            // std::vector<isDefaultButtonClickedOff>
+            //     hand_cel_button_checking_click_vector;
 
-            IntermediateBuffer intermediate_buffer;
+            TransferCell transfer_cell;
+
+            isMouseButtonClickedOff is_right_clicked_off;
+            isMouseButtonClickedOff is_left_clicked_off;
+            isKeyboardButtonClickedOff is_tab_clicked_off_map;
 
             // RectangleButton up_arrow_button;
             // RectangleButton down_arrow_button;
@@ -154,8 +241,6 @@ private:
         class Indicator
         {
         public:
-            static void loadTexture();
-
             void create();
 
             void draw();
@@ -171,8 +256,6 @@ private:
             void setProcent(int procent);
 
         protected:
-            static sf::Texture indicator_border_texture;
-
             sf::RectangleShape indicator_shape;
 
             sf::RectangleShape indicator_border_shape;
@@ -193,8 +276,6 @@ private:
         class TimeCountdown
         {
         public:
-            static void loadTexture();
-
             void create();
 
             void draw();
@@ -210,8 +291,6 @@ private:
             void setFullTime(float t);
 
         private:
-            static sf::Texture indicator_border_texture;
-
             sf::RectangleShape indicator_shape;
 
             sf::RectangleShape indicator_border_shape;
@@ -246,10 +325,11 @@ private:
             void zoom();
 
         private:
-            void loadTextures();
+            void drawDroppedObjects();
 
-            MyTexture<Player::Status> hero_texture;
             sf::RectangleShape hero_shape;
+
+            sf::CircleShape work_radius_shape;
 
             sf::RectangleShape left_corner;
 
@@ -272,12 +352,7 @@ private:
 
         InventoryInterface inventory_interface;
 
-        MyTexture<PhysicalObject::Type> physical_object_texture;
-
-        MyTexture<char> char_texture;
-
-        void loadObjectTexture();
-        void loadCharTexture();
+        CraftMenuInterface craft_menu_interface;
 
         void drawWorld();
     };

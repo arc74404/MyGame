@@ -29,13 +29,5 @@ Stone::isObstructive() const
 bool
 Stone::isCorrrectInstrument(const StorageObject& st_obj) const
 {
-    if (st_obj.getType() == StorageObject::Type::INSTRUMENT)
-    {
-        if (static_cast<const Instrument*>(&st_obj)->getInstrumentType() ==
-            Instrument::InstrumentType::PICKAXE)
-        {
-            return true;
-        }
-    }
-    return false;
+    return st_obj.getType() == StorageObject::Type::PICKAXE;
 }

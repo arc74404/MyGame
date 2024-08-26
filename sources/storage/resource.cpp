@@ -1,12 +1,17 @@
 #include "resource.hpp"
 
-Resource::Resource(ResourceType rt)
-    : StorageObject(StorageObject::Type::RESOURCE), resource_type(rt)
+Resource::Resource(Type rt) : StorageObject(rt)
 {
 }
 
-Resource::ResourceType
-Resource::getResourceType()
+StorageObject::GeneralType
+Resource::getGeneralType() const
 {
-    return resource_type;
+    return GeneralType::RESOURCE;
+}
+
+std::shared_ptr<StorageObject>
+Resource::getCopyObject() const
+{
+    return std::make_shared<Resource>(Resource(this->m_type));
 }

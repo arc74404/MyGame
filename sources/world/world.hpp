@@ -6,6 +6,8 @@
 #include <set>
 #include <vector>
 
+#include "dropped_object/dropped_object.hpp"
+
 #include "cell.hpp"
 
 // #include "location.hpp"
@@ -26,10 +28,13 @@ public:
 
     bool setObject(const sf::Vector2i& obj_pos, PhysicalObjectPtr po_ptr);
 
+    void setDroppedObject(
+        const std::vector<std::shared_ptr<DroppedObject>>& do_ptr_vec);
+
     int getLength() const;
 
-    const Location& getLocation(int x, int y) const;
-    const Location& getLocation(const sf::Vector2f& coordinate) const;
+    Location& getLocation(int x, int y) ;
+    Location& getLocation(const sf::Vector2f& coordinate) ;
 
     sf::Vector2i getCellPosition(const sf::Vector2f& point_coordinate) const;
 
@@ -44,7 +49,7 @@ private:
 
     LocationMatrix location_matrix;
 
-    std::set<WorldCell> updatable_cell_list;
+    std::set<WorldCell*> updatable_cell_set;
 };
 
 #endif // WORLD_HPP

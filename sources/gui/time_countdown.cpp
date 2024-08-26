@@ -4,20 +4,20 @@
 #include <string>
 
 #include "gui/gui.hpp"
-sf::Texture Gui::Graphic::TimeCountdown::indicator_border_texture;
 
-void
-Gui::Graphic::TimeCountdown::loadTexture()
-{
-    indicator_border_texture.loadFromFile(
-        "C:/Users/arsbo/source/repos/game2/resources/"
-        "player_info.png");
-}
+#include "texture_storage.hpp"
+
+// void
+// Gui::Graphic::TimeCountdown::loadTexture()
+// {
+
+// }
 
 void
 Gui::Graphic::TimeCountdown::create()
 {
-    indicator_border_shape.setTexture(&indicator_border_texture);
+    indicator_border_shape.setTexture(
+        &TextureStorage::getInstance()->indicator_border_texture);
 
     indicator_border_shape.setTextureRect(sf::IntRect(23, 20, 117, 51));
 
@@ -26,7 +26,7 @@ Gui::Graphic::TimeCountdown::create()
     for (int i = 0; i < seconds_digit_shape_list.size(); ++i)
     {
         seconds_digit_shape_list[i].setTexture(
-            Gui::getInstance()->graphic.char_texture.getTexturePtr());
+            TextureStorage::getInstance()->char_texture.getTexturePtr());
     }
 }
 
@@ -112,14 +112,14 @@ Gui::Graphic::TimeCountdown::setSeconds(float s)
         for (int i = 0; i < str_left_seconds.size() - 2; ++i)
         {
             seconds_digit_shape_list[i].setTextureRect(
-                Gui::getInstance()
-                    ->graphic.char_texture[str_left_seconds[i]][0]);
+                TextureStorage::getInstance()
+                    ->char_texture[str_left_seconds[i]][0]);
         }
         seconds_digit_shape_list[str_left_seconds.size() - 2].setTextureRect(
-            Gui::getInstance()->graphic.char_texture[' '][0]);
+            TextureStorage::getInstance()->char_texture[' '][0]);
 
         seconds_digit_shape_list[str_left_seconds.size() - 1].setTextureRect(
-            Gui::getInstance()->graphic.char_texture['s'][0]);
+            TextureStorage::getInstance()->char_texture['s'][0]);
     }
     catch (const std::exception& e)
     {

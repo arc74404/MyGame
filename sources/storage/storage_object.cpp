@@ -19,6 +19,12 @@ StorageObject::getType() const
     return m_type;
 }
 
+StorageObject::GeneralType
+StorageObject::getGeneralType() const
+{
+    return GeneralType::HAND;
+}
+
 void
 StorageObject::use(const WorldCell& world_cell)
 {
@@ -37,4 +43,16 @@ StorageObject::use(const WorldCell& world_cell)
                 standart_time_recharge_seconds);
         }
     }
+}
+
+StorageObjectPtr
+StorageObject::getCopyObject() const
+{
+    return std::make_shared<StorageObject>(StorageObject(Type::HAND));
+}
+
+bool
+StorageObject::operator==(const StorageObject& other)
+{
+    return this->m_type == other.m_type;
 }

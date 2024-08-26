@@ -4,16 +4,17 @@
 
 #include "gui.hpp"
 #include "is_key_button_clicked_off.hpp"
+#include "texture_storage.hpp"
 
 InventoryCellButton::InventoryCellButton() : RectangleButton()
 {
 }
 
-const std::vector<sf::RectangleShape>&
-InventoryCellButton::getObjectCountShapeVectorRef()
-{
-    return object_count_shape_vector;
-}
+// const std::vector<sf::RectangleShape>&
+// InventoryCellButton::getObjectCountShapeVectorRef()
+// {
+//     return object_count_shape_vector;
+// }
 
 void
 InventoryCellButton::update()
@@ -43,11 +44,11 @@ InventoryCellButton::update()
         }
     }
 }
-const sf::RectangleShape&
-InventoryCellButton::getInventoryObjectShapeRef()
-{
-    return inventory_object_shape;
-}
+// const sf::RectangleShape&
+// InventoryCellButton::getInventoryObjectShapeRef()
+// {
+//     return inventory_object_shape;
+// }
 
 void
 InventoryCellButton::setCount(int count)
@@ -59,7 +60,7 @@ InventoryCellButton::setCount(int count)
     for (int i = 0; i < object_count_shape_vector.size(); ++i)
     {
         object_count_shape_vector[i].setTexture(
-            Gui::getInstance()->graphic.getCharTexturePtr());
+            TextureStorage::getInstance()->char_texture.getTexturePtr());
     }
 
     try
@@ -72,7 +73,7 @@ InventoryCellButton::setCount(int count)
         for (int i = 0; i < str_count.size(); ++i)
         {
             object_count_shape_vector[i].setTextureRect(
-                Gui::getInstance()->graphic.getCharTextureRect(str_count[i]));
+                TextureStorage::getInstance()->char_texture[str_count[i]][0]);
         }
     }
     catch (const std::exception& e)
@@ -135,6 +136,7 @@ HandCellButton::setCheckingKey(sf::Keyboard::Key k)
 void
 HandCellButton::update()
 {
+    is_key_clicked_off.update();
     if (is_key_clicked_off())
     {
         if (status == BaseButton::Status::NOT_SHINE)
@@ -152,4 +154,23 @@ void
 HandCellButton::turnOff()
 {
     status = BaseButton::Status::NOT_SHINE;
+}
+
+void
+InventoryCellButton::draw() const
+{
+    BaseButton::draw();
+
+    Gui::getInstance()->m_window.draw(inventory_object_shape);
+
+    for (int j = 0; j < object_count_shape_vector.size(); ++j)
+    {
+        Gui::getInstance()->m_window.draw(object_count_shape_vector[j]);
+    }
+}
+
+sf::IntRect
+InventoryCellButton::getTextureRect()
+{
+    return inventory_object_shape.getTextureRect();
 }

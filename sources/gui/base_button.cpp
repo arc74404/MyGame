@@ -55,10 +55,10 @@ BaseButton::update()
     }
 }
 
-const sf::RectangleShape&
-BaseButton::getShapeRef() const
+void
+BaseButton::draw() const
 {
-    return shape;
+    Gui::getInstance()->m_window.draw(shape);
 }
 
 BaseButton::Status

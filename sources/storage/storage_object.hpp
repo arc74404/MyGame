@@ -7,9 +7,20 @@ class StorageObject
 public:
     enum class Type
     {
+        HAND    = 0,
+        PICKAXE = 1,
+        AXE,
+        WOOD,
+        STONE,
+        STRAWBERRY,
+        BLUEBERRY,
+        APPLE
+    };
+
+    enum class GeneralType
+    {
         HAND       = 0,
         INSTRUMENT = 1,
-        BLOCK,
         RESOURCE
     };
 
@@ -17,7 +28,13 @@ public:
 
     Type getType() const;
 
+    virtual std::shared_ptr<StorageObject> getCopyObject() const;
+
+    virtual GeneralType getGeneralType() const;
+
     virtual void use(const WorldCell& world_cell);
+
+    virtual bool operator==(const StorageObject& other);
 
 protected:
     Type m_type;

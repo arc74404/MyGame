@@ -1,23 +1,20 @@
-#ifndef INSTRUMENT_HPP
-#define INSTRUMENT_HPP
+#ifndef RESOURCE_HPP
+#define RESOURCE_HPP
 
 #include "storage/storage_object.hpp"
 
 class Resource : public StorageObject
 {
 public:
-    enum class ResourceType
-    {
-        WOOD = 0,
-        STONE     = 1
-    };
+    Resource(Type rt);
 
-    Resource(ResourceType rt);
+    GeneralType getGeneralType() const override;
 
-    ResourceType getResourceType();
+    std::shared_ptr<StorageObject> getCopyObject() const override;
+
+
 
 private:
-    ResourceType resource_type;
 };
 
-#endif // !INSTRUMENT_HPP
+#endif // !RESOURCE_HPP

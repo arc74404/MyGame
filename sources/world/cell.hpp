@@ -14,8 +14,10 @@ public:
 
     WorldCell();
 
+    WorldCell(const WorldCell& other);
+
     void setPhysicalObjectPtr(const PhysicalObjectPtr physical_object_ptr,
-                              bool main);
+                              bool main, const sf::Vector2f& pos);
 
     PhysicalObjectPtr getObjectPtr() const;
 
@@ -23,10 +25,16 @@ public:
     bool isEmpty() const;
     bool isObstructive() const;
 
+    sf::Vector2f getPosition();
+
+    void operator=(const WorldCell&);
+
     bool operator<(const WorldCell&) const;
 
 private:
     static int m_length;
+
+    sf::Vector2f m_position;
 
     bool is_main;
 

@@ -4,11 +4,27 @@
 #include "world/world.hpp"
 
 #include "gui.hpp"
+#include "texture_storage.hpp"
 
 void
 Gui::Graphic::PlayerInterface::create()
 {
-    loadTextures();
+
+    hero_shape.setTexture(
+        TextureStorage::getInstance()->hero_texture.getTexturePtr());
+
+    health_indicator.create();
+    hunger_indicator.create();
+    recharge_hit_countdown.create();
+
+    health_indicator.setDesignation("health");
+    hunger_indicator.setDesignation("hunger");
+
+    health_indicator.setColor(sf::Color::Red);
+    hunger_indicator.setColor(sf::Color::Yellow);
+    recharge_hit_countdown.setColor(sf::Color::Yellow);
+
+    left_corner.setFillColor(sf::Color(255, 255, 255, 140));
 
     sf::Vector2u window_size = Gui::getInstance()->m_window.getSize();
     sf::Vector2f shape_size  = {window_size.x * 0.3f, window_size.y * 0.05f};
@@ -34,11 +50,23 @@ Gui::Graphic::PlayerInterface::create()
 
     left_corner.setSize(left_corner_size);
     left_corner.setPosition(shape_position1);
+
+    work_radius_shape.setFillColor(sf::Color::Transparent);
+    work_radius_shape.setOutlineThickness(3);
+    work_radius_shape.setOutlineColor(sf::Color(123, 23, 88, 122));
+    // work_radius_shape.setRadius(Player::getInstance()->getWorkRadius());
+    // work_radius_shape.setPosition({Gui::getInstance()->getWindowCentre().x -
+    //                                    Player::getInstance()->getWorkRadius(),
+    //                                Gui::getInstance()->getWindowCentre().y -
+    //                                    Player::getInstance()->getWorkRadius()});
 }
 
 void
 Gui::Graphic::PlayerInterface::update()
 {
+    static isKeyboardButtonClickedOff is_E_clicked_off_map;
+    is_E_clicked_off_map.setKey(sf::Keyboard::E);
+    is_E_clicked_off_map.update();
     sf::Vector2f displacement_vector =
         Gui::getInstance()->getMousePosition() -
         Gui::getInstance()->graphic.getPlayerPositionInWindow();
@@ -46,86 +74,30 @@ Gui::Graphic::PlayerInterface::update()
     displacement_vector.x /= Gui::getInstance()->graphic.getScope();
     displacement_vector.y /= Gui::getInstance()->graphic.getScope();
 
+    sf::Vector2f player_position = Player::getInstance()->getPosition();
+    sf::Vector2f mouse_coordinate =
+        Player::getInstance()->getPosition() + displacement_vector;
+
+    Location& location = World::getInstance()->getLocation(mouse_coordinate);
+
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
         Player::getInstance()->moveNextPosition(displacement_vector);
     }
-    else if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
     {
-        Player::getInstance()->stopMoving();
-        sf::Vector2f poke_coordinate =
-            Player::getInstance()->getPosition() + displacement_vector;
-
-        const Location& l = World::getInstance()->getLocation(poke_coordinate);
-
-        int loc_size = Location::getLength() * WorldCell::getLength();
-
-        const WorldCell& world_cell =
-            l.getCell({float(int(poke_coordinate.x) % loc_size),
-                       float(int(poke_coordinate.y) % loc_size)});
-
+        // Player::getInstance()->stopMoving();
         const StorageCell& using_storage_cell =
             Gui::getInstance()
                 ->graphic.inventory_interface.getUsingStorageCellRef();
 
-        Player::getInstance()->operate(world_cell, using_storage_cell);
+        Player::getInstance()->operate(location, mouse_coordinate,
+                                       using_storage_cell);
     }
-}
-
-void
-Gui::Graphic::PlayerInterface::loadTextures()
-{
-    float cell_length = WorldCell::getLength();
-
-    hero_texture.loadFromFile("C:/Users/arsbo/source/repos/game2/"
-                              "resources/hero.png");
-
-    hero_shape.setTexture(hero_texture.getTexturePtr());
-
-    sf::Vector2i texture_rect_size = {17, 31};
-    sf::Vector2i texture_rect_pos  = {10, 2};
-
-    hero_texture[Player::Status::STAND].emplace_back(
-        sf::IntRect(texture_rect_pos, texture_rect_size));
-
-    texture_rect_size = {20, 31};
-
-    texture_rect_pos.x += 34;
-    hero_texture[Player::Status::WALK].emplace_back(
-        sf::IntRect(texture_rect_pos, texture_rect_size)); // 0
-
-    texture_rect_pos.x += 36;
-    hero_texture[Player::Status::WALK].emplace_back(
-        sf::IntRect(texture_rect_pos, texture_rect_size)); // 1
-
-    texture_rect_pos.x += 34;
-    hero_texture[Player::Status::WALK].emplace_back(
-        sf::IntRect(texture_rect_pos, texture_rect_size)); // 2
-
-    texture_rect_pos.x += 36;
-    hero_texture[Player::Status::WALK].emplace_back(
-        sf::IntRect(texture_rect_pos, texture_rect_size)); // 3
-
-    texture_rect_pos.x += 36;
-    hero_texture[Player::Status::WALK].emplace_back(
-        sf::IntRect(texture_rect_pos, texture_rect_size)); // 4
-
-    texture_rect_pos.x += 34;
-    hero_texture[Player::Status::WALK].emplace_back(
-        sf::IntRect(texture_rect_pos, texture_rect_size)); // 5
-
-    health_indicator.create();
-    hunger_indicator.create();
-    recharge_hit_countdown.create();
-
-    health_indicator.setDesignation("health");
-    hunger_indicator.setDesignation("hunger");
-
-    health_indicator.setColor(sf::Color::Red);
-    hunger_indicator.setColor(sf::Color::Yellow);
-    recharge_hit_countdown.setColor(sf::Color::Yellow);
-
-    left_corner.setFillColor(sf::Color(255, 255, 255, 140));
+    if (is_E_clicked_off_map())
+    {
+        Player::getInstance()->manipulate(location, mouse_coordinate);
+    }
 }
 
 void
@@ -141,7 +113,7 @@ Gui::Graphic::PlayerInterface::drawPlayer()
     {
 
         case Player::Status::STAND:
-            r = hero_texture[player_status][0];
+            r = TextureStorage::getInstance()->hero_texture[player_status][0];
 
             if (Player::getInstance()->getFlank() == Player::Flank::LEFT)
             {
@@ -156,9 +128,12 @@ Gui::Graphic::PlayerInterface::drawPlayer()
 
             rect_index =
                 (int(Player::getInstance()->getWalkTimeSeconds() * 1000) / 50) %
-                hero_texture[Player::Status::WALK].size();
+                TextureStorage::getInstance()
+                    ->hero_texture[Player::Status::WALK]
+                    .size();
 
-            r = hero_texture[player_status][rect_index];
+            r = TextureStorage::getInstance()
+                    ->hero_texture[player_status][rect_index];
 
             if (Player::getInstance()->getFlank() == Player::Flank::LEFT)
             {
@@ -196,6 +171,7 @@ Gui::Graphic::PlayerInterface::drawInterface()
             Player::getInstance()->getLeftRechargeTimeAsSeconds());
         recharge_hit_countdown.draw();
     }
+    Gui::getInstance()->m_window.draw(work_radius_shape);
 }
 
 void
@@ -212,4 +188,19 @@ Gui::Graphic::PlayerInterface::zoom()
     hero_shape.setPosition(wCentre.x - hero_shape_size.x * 0.5,
                            wCentre.y - hero_shape_size.y * 0.5);
     hero_shape.setSize(hero_shape_size);
+
+    work_radius_shape.setRadius(Player::getInstance()->getWorkRadius() *
+                                Gui::getInstance()->graphic.scope);
+    // work_radius_shape.setPosition({Gui::getInstance()->getWindowCentre().x -
+    //                                    Player::getInstance()->getWorkRadius()
+    //                                    * 2,
+    //                                Gui::getInstance()->getWindowCentre().y -
+    //                                    Player::getInstance()->getWorkRadius()
+    //                                    * 2});
+    sf::Vector2f radius_shape_position = {
+        wCentre.x - work_radius_shape.getRadius(),
+        wCentre.y - work_radius_shape.getRadius() +
+            hero_shape.getSize().y * 0.5f};
+
+    work_radius_shape.setPosition(radius_shape_position);
 }

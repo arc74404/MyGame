@@ -19,11 +19,15 @@ public:
 
     void setInventoryObjectTextureRect(const sf::IntRect& rect);
 
-    const sf::RectangleShape& getInventoryObjectShapeRef();
+    sf::IntRect getTextureRect();
 
-    const std::vector<sf::RectangleShape>& getObjectCountShapeVectorRef();
+    // const sf::RectangleShape& getInventoryObjectShapeRef();
+
+    // const std::vector<sf::RectangleShape>& getObjectCountShapeVectorRef();
 
     void setCount(int count);
+
+    void draw() const override;
 
 protected:
     sf::RectangleShape inventory_object_shape;

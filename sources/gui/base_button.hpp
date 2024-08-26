@@ -23,17 +23,19 @@ public:
 
     virtual bool isPointInButton(const sf::Vector2f& cursor_position) const = 0;
 
-    sf::Vector2f getPosition() const;
+    virtual sf::Vector2f getPosition() const;
 
-    const sf::RectangleShape& getShapeRef() const;
+    ShapeType getShapeType();
 
     Status getStatus() const;
 
-    void setPosition(const sf::Vector2f& percentage_position);
+    virtual void setPosition(const sf::Vector2f& percentage_position);
 
-    void setTexture(const sf::Texture* texture);
+    virtual void setTexture(const sf::Texture* texture);
 
-    void setTextureRect(const sf::IntRect& int_rect);
+    virtual void setTextureRect(const sf::IntRect& int_rect);
+
+    virtual void draw() const;
 
     void update();
 

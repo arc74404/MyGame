@@ -3,8 +3,12 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <unordered_map>
+
+#include "storage/craft_menu.hpp"
 #include "storage/storage.hpp"
 #include "world/cell.hpp"
+#include "world/location.hpp"
 
 class Player
 {
@@ -51,12 +55,22 @@ public:
 
     void stopMoving();
 
-    void operate(const WorldCell&, const StorageCell&);
+    void operate(const Location& loc, const sf::Vector2f& mouse_coordinate,
+                 const StorageCell&);
+
+    void manipulate(Location& loc, const sf::Vector2f& mouse_coordinate);
 
     void restartTimeRechargeAsSeconds(float tt);
 
+    void addStorageObject(const StorageCell&);
+
+    // void openCraftMenu(int level);
+
     bool isReadyToHit();
 
+    bool checkIngredientsSufficiency(const std::vector<StorageCell>&);
+
+    void take(const CraftMenu::CraftRow&);
     ////////////////////////////
 
     StorageCell& getInventoryCell(int index);
@@ -82,10 +96,17 @@ public:
 
     int getHandVectorSize();
 
+    float getWorkRadius();
+
+    const CraftMenu& getCraftMenu() const;
+
 private:
     //////////////////////////////////////////
     void walk();
     void die();
+
+    bool take(const std::shared_ptr<DroppedObject>& dropped_object);
+    void deleteIngredients(const std::vector<StorageCell>&);
     //////////////////////////////////////////
 
     ///////////////////////////////////////////
@@ -101,10 +122,15 @@ private:
     CollisionData collision_data;
 
     Storage inventory;
-
     Storage hand_vector;
 
-    const WorldCell* world_cell_ptr;
+    std::unordered_map<StorageObject::Type, int> inventory_and_hand_data;
+
+    CraftMenu craft_menu;
+
+    float work_radius;
+
+    // const WorldCell* world_cell_ptr;
 
     sf::Clock clock_recharge;
     float time_recharge_seconds;

@@ -2,21 +2,18 @@
 #include <iostream>
 
 #include "gui.hpp"
+#include "texture_storage.hpp"
 
-sf::Texture Gui::Graphic::Indicator::indicator_border_texture;
-
-void
-Gui::Graphic::Indicator::loadTexture()
-{
-    indicator_border_texture.loadFromFile(
-        "C:/Users/arsbo/source/repos/game2/resources/"
-        "player_info.png");
-}
+// void
+// Gui::Graphic::Indicator::loadTexture()
+// {
+// }
 
 void
 Gui::Graphic::Indicator::create()
 {
-    indicator_border_shape.setTexture(&indicator_border_texture);
+    indicator_border_shape.setTexture(
+        &TextureStorage::getInstance()->indicator_border_texture);
 
     indicator_border_shape.setTextureRect(sf::IntRect(23, 20, 117, 51));
 
@@ -25,7 +22,7 @@ Gui::Graphic::Indicator::create()
     for (int i = 0; i < procent_digit_shape_list.size(); ++i)
     {
         procent_digit_shape_list[i].setTexture(
-            Gui::getInstance()->graphic.char_texture.getTexturePtr());
+            TextureStorage::getInstance()->char_texture.getTexturePtr());
     }
 }
 
@@ -114,7 +111,7 @@ Gui::Graphic::Indicator::setDesignation(const std::string& str)
     for (int i = 0; i < designation_letter_shape_list.size(); ++i)
     {
         designation_letter_shape_list[i].setTexture(
-            Gui::getInstance()->graphic.char_texture.getTexturePtr());
+            TextureStorage::getInstance()->char_texture.getTexturePtr());
 
         // std::cout << str[i] << '\n';
 
@@ -122,7 +119,8 @@ Gui::Graphic::Indicator::setDesignation(const std::string& str)
         //           << '\n';
 
         designation_letter_shape_list[i].setTextureRect(
-            Gui::getInstance()->graphic.char_texture[std::tolower(str[i])][0]);
+            TextureStorage::getInstance()
+                ->char_texture[std::tolower(str[i])][0]);
     }
     setSize(m_size);
 }
@@ -142,11 +140,11 @@ Gui::Graphic::Indicator::setProcent(int procent)
         for (int i = 0; i < str_procent.size() - 1; ++i)
         {
             procent_digit_shape_list[i].setTextureRect(
-                Gui::getInstance()->graphic.char_texture[str_procent[i]][0]);
+                TextureStorage::getInstance()->char_texture[str_procent[i]][0]);
         }
 
         procent_digit_shape_list[str_procent.size() - 1].setTextureRect(
-            Gui::getInstance()->graphic.char_texture['%'][0]);
+            TextureStorage::getInstance()->char_texture['%'][0]);
     }
     catch (const std::exception& e)
     {

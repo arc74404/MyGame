@@ -31,10 +31,9 @@ bool
 Gui::isMouseInRectangle(const sf::Vector2f& pos, const sf::Vector2f& s)
 {
     sf::Vector2f point = getMousePosition();
-    bool in_x = (point.x > pos.x) &&
-                (point.x < pos.x + s.x);
-    bool in_y = (point.y > pos.y) &&
-                (point.y < pos.y + s.y);
+
+    bool in_x = (point.x > pos.x) && (point.x < pos.x + s.x);
+    bool in_y = (point.y > pos.y) && (point.y < pos.y + s.y);
 
     return in_x && in_y;
 }
@@ -60,13 +59,13 @@ Gui::getWindowSize()
     return {float(m_window.getSize().x), float(m_window.getSize().y)};
 }
 
+bool
+isPointInRectangle(const sf::Vector2f& point, const sf::Vector2f& position,
+                   const sf::Vector2f& size);
+
 void
 Gui::handleEvents()
 {
-    handlePlayerActions();
-
-    handleInventoryActions();
-
     while (m_window.pollEvent(m_event))
     {
         if (m_event.type == sf::Event::EventType::Closed)
@@ -74,12 +73,22 @@ Gui::handleEvents()
             App::getInstance()->finishWork();
         }
     }
+
+    if (!isPointInRectangle(getMousePosition(), {0, 0}, getWindowSize()))
+    {
+        return;
+    }
+
+    handlePlayerActions();
+
+    handleInventoryActions();
 }
 
 void
 Gui::handleInventoryActions()
 {
     graphic.inventory_interface.update();
+    graphic.craft_menu_interface.update();
 }
 
 void

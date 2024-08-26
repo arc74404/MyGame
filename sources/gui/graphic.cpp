@@ -8,145 +8,42 @@
 #include "world/world.hpp"
 
 #include "gui.hpp"
+#include "texture_storage.hpp"
 
 Gui::Graphic::Graphic()
 {
     rendering_radius = 4;
 }
 
-void
-Gui::Graphic::loadObjectTexture()
-{
-    physical_object_texture.loadFromFile(
-        "C:/Users/arsbo/source/repos/game2/resources/object_"
-        "texture.png");
+// void
+// Gui::Graphic::loadObjectTexture()
+// {
 
-    physical_object_texture[PhysicalObject::Type::STONE].emplace_back(
-        sf::IntRect(17, 17, 53, 50));
+// }
 
-    physical_object_texture[PhysicalObject::Type::GRASS].emplace_back(
-        sf::IntRect(12 + 71 * 2, 224, 70, 63));
+// void
+// Gui::Graphic::loadCharTexture()
+// {
 
-    physical_object_texture[PhysicalObject::Type::APPLE_TREE].emplace_back(
-        sf::IntRect(360, 50, 150, 145));
+// }
 
-    physical_object_texture[PhysicalObject::Type::APPLE_TREE].emplace_back(
-        sf::IntRect(360 + 165, 50, 150, 145));
+// void
+// Gui::Graphic::loadTextures()
+// {
+//     Gui::Graphic::Indicator::loadTexture();
+//     Gui::Graphic::TimeCountdown::loadTexture();
+//     Gui::Graphic::InventoryInterface::loadTexture();
 
-    physical_object_texture[PhysicalObject::Type::APPLE_TREE].emplace_back(
-        sf::IntRect(360, 50 + 160, 150, 145));
+//     loadCharTexture();
 
-    physical_object_texture[PhysicalObject::Type::APPLE_TREE].emplace_back(
-        sf::IntRect(360 + 165, 50 + 160, 150, 145));
+//     player_interface.create();
 
-    physical_object_texture[PhysicalObject::Type::BIRCH_TREE].emplace_back(
-        sf::IntRect(360 + 354, 52, 150, 145));
+//     inventory_interface.create();
 
-    for (int i = 0; i < 4; ++i)
-    {
-        physical_object_texture[PhysicalObject::Type::BUSH_BLUEBERRY]
-            .emplace_back(sf::IntRect(12 + 71 * i, 81, 70, 63));
-        physical_object_texture[PhysicalObject::Type::BUSH_STRAWBERRY]
-            .emplace_back(sf::IntRect(12 + 71 * i, 150, 70, 63));
-    }
-}
+//     loadObjectTexture();
 
-void
-Gui::Graphic::loadCharTexture()
-{
-    char_texture.loadFromFile("C:/Users/arsbo/source/repos/game2/resources/"
-                              "char_symbols.png");
-    sf::IntRect int_rect(7, 6, 8, 10);
-    // char_texture['0'].emplace_back(int_rect);
-    for (char c = '0'; c <= '2'; c++)
-    {
-        char_texture[c].emplace_back(int_rect);
-        int_rect.left += 9;
-    }
-    int_rect.left += 1;
-    for (char c = '3'; c <= '9'; c++)
-    {
-        char_texture[c].emplace_back(int_rect);
-        int_rect.left += 10;
-    }
-    for (char c = 'a'; c <= 'h'; c++)
-    {
-        char_texture[c].emplace_back(int_rect);
-        int_rect.left += 10;
-    }
-    int_rect.left -= 1;
-    for (char c = 'i'; c <= 'j'; c++)
-    {
-        char_texture[c].emplace_back(int_rect);
-        int_rect.left += 9;
-    }
-    int_rect.left += 1;
-    for (char c = 'k'; c < 'm'; c++)
-    {
-        char_texture[c].emplace_back(int_rect);
-        int_rect.left += 10;
-    }
-    int_rect.width += 2;
-    char_texture['m'].emplace_back(int_rect);
-    int_rect.width -= 2;
-    int_rect.left += 12;
-    for (char c = 'n'; c <= 's'; c++)
-    {
-        char_texture[c].emplace_back(int_rect);
-        int_rect.left += 10;
-    }
-    int_rect.width += 2;
-    char_texture['t'].emplace_back(int_rect);
-    int_rect.width -= 2;
-    int_rect.left += 12;
-    for (char c = 'u'; c <= 'u'; c++)
-    {
-        char_texture[c].emplace_back(int_rect);
-        int_rect.left += 10;
-    }
-    int_rect.width += 2;
-    char_texture['v'].emplace_back(int_rect);
-    int_rect.left += 12;
-    for (char c = 'v'; c <= 'z'; c++)
-    {
-        char_texture[c].emplace_back(int_rect);
-        int_rect.left += 11;
-    }
-
-    int_rect.top  = 24;
-    int_rect.left = 6;
-    char_texture['!'].emplace_back(int_rect);
-    int_rect.left += 10;
-    char_texture['#'].emplace_back(int_rect);
-    int_rect.left += 11;
-    char_texture['%'].emplace_back(int_rect);
-    int_rect.left += 9;
-    char_texture['-'].emplace_back(int_rect);
-    int_rect.left += 8;
-    char_texture['+'].emplace_back(int_rect);
-    int_rect.left += 8;
-    char_texture['.'].emplace_back(int_rect);
-    int_rect.left += 8;
-    char_texture[' '].emplace_back(int_rect);
-}
-
-void
-Gui::Graphic::loadTextures()
-{
-    Gui::Graphic::Indicator::loadTexture();
-    Gui::Graphic::TimeCountdown::loadTexture();
-    Gui::Graphic::InventoryInterface::loadTexture();
-
-    loadCharTexture();
-
-    player_interface.create();
-
-    inventory_interface.create();
-
-    loadObjectTexture();
-
-    zoom(2.5f);
-}
+//     zoom(2.5f);
+// }
 
 void
 Gui::Graphic::drawWorld()
@@ -156,6 +53,8 @@ Gui::Graphic::drawWorld()
     sf::Vector2f player_position = Player::getInstance()->getPosition();
 
     int cell_length = WorldCell::getLength();
+
+    float dropped_object_length = DroppedObject::getLength();
 
     int location_cell_length = Location::getLength();
 
@@ -174,6 +73,9 @@ Gui::Graphic::drawWorld()
 
     int player_line_y = player_cell_on_world.y % location_cell_length;
 
+    static int hh = 0;
+    hh++;
+
     // std::cout << player_line_y << '\n';
     for (int w_y = player_location_coordinate.y - rendering_radius;
          w_y <= player_location_coordinate.y + rendering_radius; ++w_y)
@@ -189,18 +91,20 @@ Gui::Graphic::drawWorld()
                 {
                     continue;
                 }
-                if (player_line_y == l_y &&
-                    w_x == player_location_coordinate.x + 1 &&
-                    player_location_coordinate.y == w_y)
-                {
-                    player_interface.drawPlayer();
-                }
+
+                const Location& location =
+                    World::getInstance()->getLocation(w_x, w_y);
 
                 for (int l_x = 0; l_x < location_cell_length; ++l_x)
                 {
-
-                    const Location& location =
-                        World::getInstance()->getLocation(w_x, w_y);
+                    if (player_line_y == l_y &&
+                        w_x ==
+                            player_location_coordinate.x + rendering_radius &&
+                        w_y == player_location_coordinate.y &&
+                        l_x == location_cell_length - 1)
+                    {
+                        player_interface.drawPlayer();
+                    }
 
                     cell_position = {w_x * location_cell_length * cell_length +
                                          l_x * cell_length,
@@ -246,11 +150,14 @@ Gui::Graphic::drawWorld()
                         // }
 
                         shape.setTexture(
-                            physical_object_texture.getTexturePtr());
+                            TextureStorage::getInstance()
+                                ->physical_object_texture.getTexturePtr());
 
                         shape.setTextureRect(
-                            physical_object_texture
-                                [t][p_cell.getObjectPtr()->getPictureIndex()]);
+                            TextureStorage::getInstance()
+                                ->physical_object_texture
+                                    [t]
+                                    [p_cell.getObjectPtr()->getPictureIndex()]);
                         Gui::getInstance()->m_window.draw(shape);
                     }
                     // else
@@ -259,6 +166,53 @@ Gui::Graphic::drawWorld()
                     //     difference); shape.setFillColor(transparent);
                     // }
                 }
+            }
+        }
+    }
+    for (int w_y = player_location_coordinate.y - rendering_radius;
+         w_y <= player_location_coordinate.y + rendering_radius; ++w_y)
+    {
+        for (int w_x = player_location_coordinate.x - rendering_radius;
+             w_x <= player_location_coordinate.x + rendering_radius; ++w_x)
+        {
+            const Location& location =
+                World::getInstance()->getLocation(w_x, w_y);
+            const std::vector<std::shared_ptr<DroppedObject>>&
+                dropped_object_vector = location.getDroppedObjectVector();
+
+            for (int i = 0; i < dropped_object_vector.size(); ++i)
+            {
+                sf::RectangleShape shape;
+
+                shape.setSize({dropped_object_length * scope,
+                               dropped_object_length * scope});
+
+                shape.setFillColor(sf::Color(255, 255, 255, 220));
+
+                sf::Vector2f difference;
+
+                difference.x = (player_position.x -
+                                dropped_object_vector[i]->getPosition().x) *
+                               scope;
+
+                difference.y = (player_position.y -
+                                dropped_object_vector[i]->getPosition().y) *
+                               scope;
+
+                shape.setPosition(player_position_window - difference);
+
+                shape.setTexture(TextureStorage::getInstance()
+                                     ->storage_objects_texture.getTexturePtr());
+
+                std::shared_ptr<Resource> res_ptr =
+                    std::reinterpret_pointer_cast<Resource>(
+                        dropped_object_vector[i]);
+
+                shape.setTextureRect(
+                    TextureStorage::getInstance()
+                        ->storage_objects_texture[res_ptr->getType()][0]);
+
+                Gui::getInstance()->m_window.draw(shape);
             }
         }
     }
@@ -276,6 +230,7 @@ Gui::Graphic::display()
     if (inventory_interface.getStatus() == InventoryInterface::Status::OPEN)
     {
         Gui::getInstance()->graphic.inventory_interface.drawFullInventory();
+        Gui::getInstance()->graphic.craft_menu_interface.draw();
     }
     else
     {
@@ -310,14 +265,12 @@ Gui::Graphic::getScope()
     return scope;
 }
 
-sf::IntRect
-Gui::Graphic::getCharTextureRect(char ch)
+void
+Gui::Graphic::create()
 {
-    return char_texture[ch][0];
-}
+    player_interface.create();
+    inventory_interface.create();
+    craft_menu_interface.create();
 
-const sf::Texture*
-Gui::Graphic::getCharTexturePtr()
-{
-    return char_texture.getTexturePtr();
+    zoom(2.5);
 }

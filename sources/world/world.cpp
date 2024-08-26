@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "dropped_object/dropped_object.hpp"
+#include "gui/gui.hpp"
 #include "physical_object/changeable_object/apple_tree.hpp"
 #include "physical_object/changeable_object/birch_tree.hpp"
 #include "physical_object/changeable_object/bush.hpp"
@@ -10,17 +12,24 @@
 #include "player/player.hpp"
 
 #include "location.hpp"
+
+std::vector<std::shared_ptr<DroppedObject>>
+getDroppedObjectPtrVector(const sf::Vector2f& pos,
+                          const PhysicalObjectPtr& world_cell);
+
 void
-addUniqueCellsInSet(std::set<WorldCell>& objptr_set, Location& loc)
+addUniqueCellsInSet(std::set<WorldCell*>& obj_ptr_set, Location& loc)
 {
     int length = Location::getLength();
     for (int x = 0; x < length; ++x)
     {
         for (int y = 0; y < length; ++y)
         {
+
             if (loc.cell_matrix[x][y].getObjectPtr() != NULL)
             {
-                objptr_set.insert(loc.cell_matrix[x][y]);
+                WorldCell* world_cell_ptr = &loc.cell_matrix[x][y];
+                obj_ptr_set.insert(world_cell_ptr);
             }
         }
     }
@@ -41,6 +50,8 @@ void
 World::generate()
 {
     int loc_size = Location::getLength();
+
+    DroppedObject::setLength(World::getLength());
 
     for (int x = 0; x < loc_size * m_length; ++x)
     {
@@ -90,6 +101,26 @@ World::generate()
         }
     }
 }
+void
+World::setDroppedObject(
+    const std::vector<std::shared_ptr<DroppedObject>>& do_ptr_vec)
+{
+    float loc_size = Location::getLength() * WorldCell::getLength();
+
+    // std::cout << do_ptr_vec.size() << '\n';
+
+    for (int i = 0; i < do_ptr_vec.size(); ++i)
+    {
+        // std::cout << int(do_ptr_vec[i]->getPosition().x) << " "
+        //           << int(do_ptr_vec[i]->getPosition().y) << '\n';
+
+        Location& loc =
+            location_matrix[int(do_ptr_vec[i]->getPosition().x / loc_size)]
+                           [int(do_ptr_vec[i]->getPosition().y / loc_size)];
+
+        loc.addDroppedObject(do_ptr_vec[i]);
+    }
+}
 
 void
 World::update()
@@ -100,7 +131,7 @@ World::update()
         getCellPosition(player_position).x / Location::getLength(),
         getCellPosition(player_position).y / Location::getLength()};
 
-    updatable_cell_list.clear();
+    updatable_cell_set.clear();
 
     for (int i = -radius_updatable_locations; i <= radius_updatable_locations;
          ++i)
@@ -121,19 +152,28 @@ World::update()
             }
 
             addUniqueCellsInSet(
-                updatable_cell_list,
+                updatable_cell_set,
                 location_matrix[player_location_position.x + i]
                                [player_location_position.y + j]);
         }
     }
 
-    for (std::set<WorldCell>::iterator it = updatable_cell_list.cbegin();
-         it != updatable_cell_list.cend(); it++)
+    for (auto& world_cell_ptr : updatable_cell_set)
     {
-        if (it->getObjectPtr()->getStrength() <= 0)
+        if (world_cell_ptr->getObjectPtr()->getStrength() <= 0 &&
+            world_cell_ptr->getObjectPtr()->getType() !=
+                PhysicalObject::Type::GRASS)
         {
+            setDroppedObject(getDroppedObjectPtrVector(
+                world_cell_ptr->getPosition(), world_cell_ptr->getObjectPtr()));
+            ///////////////////////////////////////
+
+            world_cell_ptr->setPhysicalObjectPtr(
+                std::make_shared<Grass>(Grass()), true,
+                world_cell_ptr->getPosition());
         }
-        it->getObjectPtr()->update();
+
+        world_cell_ptr->getObjectPtr()->update();
     }
 }
 
@@ -174,6 +214,8 @@ World::setObject(const sf::Vector2i& obj_pos, PhysicalObjectPtr po_ptr)
     int location_length   = Location::getLength();
     sf::Vector2i obj_size = po_ptr->getSize();
 
+    float cell_length = WorldCell::getLength();
+
     cell_coordinate_array.reserve(obj_size.x * obj_size.y);
 
     for (int x = obj_pos.x; x < obj_pos.x + obj_size.x; ++x)
@@ -194,15 +236,24 @@ World::setObject(const sf::Vector2i& obj_pos, PhysicalObjectPtr po_ptr)
                    [cell_coordinate_array[0].first.y]
                        .cell_matrix[cell_coordinate_array[0].second.x]
                                    [cell_coordinate_array[0].second.y]
-                       .setPhysicalObjectPtr(po_ptr, true);
+                       .setPhysicalObjectPtr(
+                           po_ptr, true,
+                           {obj_pos.x * cell_length, obj_pos.y * cell_length});
 
     for (int i = 1; i < cell_coordinate_array.size(); ++i)
     {
-        location_matrix[cell_coordinate_array[i].first.x]
-                       [cell_coordinate_array[i].first.y]
-                           .cell_matrix[cell_coordinate_array[i].second.x]
-                                       [cell_coordinate_array[i].second.y]
-                           .setPhysicalObjectPtr(po_ptr, false);
+        location_matrix[cell_coordinate_array[i]
+                            .first.x][cell_coordinate_array[i].first.y]
+            .cell_matrix[cell_coordinate_array[i].second.x]
+                        [cell_coordinate_array[i].second.y]
+            .setPhysicalObjectPtr(
+                po_ptr, false,
+                {(cell_coordinate_array[i].first.x * location_length +
+                  cell_coordinate_array[i].second.x) *
+                     cell_length,
+                 (cell_coordinate_array[i].first.y * location_length +
+                  cell_coordinate_array[i].second.y) *
+                     cell_length});
     }
 
     return true;
@@ -214,14 +265,14 @@ World::getLength() const
     return m_length;
 }
 
-const Location&
-World::getLocation(int x, int y) const
+Location&
+World::getLocation(int x, int y)
 {
     return location_matrix[x][y];
 }
 
-const Location&
-World::getLocation(const sf::Vector2f& coordinate) const
+Location&
+World::getLocation(const sf::Vector2f& coordinate)
 {
     int loc_size = Location::getLength() * WorldCell::getLength();
     return getLocation(coordinate.x / loc_size, coordinate.y / loc_size);
@@ -232,7 +283,9 @@ World::getCellPosition(const sf::Vector2f& point_coordinate) const
 {
     sf::Vector2i cell_position;
     cell_position.x = point_coordinate.x / WorldCell::getLength();
+
     cell_position.y = point_coordinate.y / WorldCell::getLength();
+
     return cell_position;
 }
 

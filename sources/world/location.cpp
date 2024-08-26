@@ -1,7 +1,10 @@
 #include "location.hpp"
 
+#include <iostream>
+
 #include "physical_object/changeable_object/bush.hpp"
 #include "physical_object/const_object/stone.hpp"
+
 int Location::m_length = 0;
 
 Location::Location()
@@ -39,4 +42,23 @@ int
 Location::getLength()
 {
     return m_length;
+}
+
+void
+Location::addDroppedObject(
+    const std::shared_ptr<DroppedObject>& dropped_object_ptr)
+{
+    dropped_object_vector.emplace_back(dropped_object_ptr);
+}
+
+const std::vector<std::shared_ptr<DroppedObject>>&
+Location::getDroppedObjectVector() const
+{
+    return dropped_object_vector;
+}
+
+void
+Location::destroyDroppedObject(int index)
+{
+    dropped_object_vector.erase(dropped_object_vector.begin() + index);
 }

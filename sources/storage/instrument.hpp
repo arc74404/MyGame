@@ -6,25 +6,20 @@
 class Instrument : public StorageObject
 {
 public:
-    enum class InstrumentType
-    {
-        PICKAXE = 0,
-        AXE     = 1
-    };
+    Instrument(Type it, int level);
 
-    Instrument(InstrumentType it, int level);
+    int geLevel() const;
 
-    InstrumentType getInstrumentType() const;
-
-    int geLevel();
+    GeneralType getGeneralType() const override;
 
     void use(const WorldCell& world_cell) override;
 
+    std::shared_ptr<StorageObject> getCopyObject() const override;
+
+    static const int MAX_LEVEL;
+
 private:
-
-    // static float 
-
-    InstrumentType instrument_type;
+    // static float
 
     int m_level;
 };

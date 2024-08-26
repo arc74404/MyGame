@@ -1,20 +1,15 @@
 #include "instrument.hpp"
 
 #include "player/player.hpp"
-Instrument::Instrument(InstrumentType it, int level)
-    : StorageObject(StorageObject::Type::INSTRUMENT), instrument_type(it),
-      m_level(level)
-{
-}
 
-Instrument::InstrumentType
-Instrument::getInstrumentType() const
+const int Instrument::MAX_LEVEL = 2;
+
+Instrument::Instrument(Type it, int level) : StorageObject(it), m_level(level)
 {
-    return instrument_type;
 }
 
 int
-Instrument::geLevel()
+Instrument::geLevel() const
 {
     return m_level;
 }
@@ -28,7 +23,7 @@ Instrument::use(const WorldCell& world_cell)
 
     if (Player::getInstance()->isReadyToHit())
     {
-        if (instrument_type == InstrumentType::AXE)
+        if (m_type == Type::AXE)
         {
             damage_power = standart_damage_power * (2 + m_level * 5);
 
@@ -40,7 +35,7 @@ Instrument::use(const WorldCell& world_cell)
                     standart_damage_power * 2);
             }
         }
-        else if (instrument_type == InstrumentType::PICKAXE)
+        else if (m_type == Type::PICKAXE)
         {
             damage_power = standart_damage_power * (2 + m_level * 5);
 
@@ -52,4 +47,16 @@ Instrument::use(const WorldCell& world_cell)
             }
         }
     }
+}
+
+StorageObject::GeneralType
+Instrument::getGeneralType() const
+{
+    return GeneralType::INSTRUMENT;
+}
+
+StorageObjectPtr
+Instrument::getCopyObject() const
+{
+    return std::make_shared<Instrument>(Instrument(this->m_type, m_level));
 }
