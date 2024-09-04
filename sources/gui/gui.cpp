@@ -82,6 +82,8 @@ Gui::handleEvents()
     handlePlayerActions();
 
     handleInventoryActions();
+
+    handleMenuActions();
 }
 
 void
@@ -89,6 +91,13 @@ Gui::handleInventoryActions()
 {
     graphic.inventory_interface.update();
     graphic.craft_menu_interface.update();
+}
+
+void
+Gui::handleMenuActions()
+{
+    graphic.main_menu.update();
+    // graphic.craft_menu_interface.update();
 }
 
 void

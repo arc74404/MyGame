@@ -12,6 +12,8 @@ isPointInRectangle(const sf::Vector2f& point, const sf::Vector2f& position,
 
 RectangleButton::RectangleButton() : BaseButton(ShapeType::RECTANGLE)
 {
+    // shape.setOutlineThickness(3);
+    // shape.setOutlineColor(sf::Color::Red);
 }
 
 bool

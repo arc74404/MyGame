@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "app/app.hpp"
+#include "dropped_object/dropped_instrument.hpp"
 #include "dropped_object/dropped_resource.hpp"
 #include "gui/gui.hpp"
 #include "storage/instrument.hpp"
@@ -38,15 +39,6 @@ Player::Player() : m_status(Status::STAND), hunger(100), health(100)
 
         hand_vector[i].setObject(st_obj_ptr);
     }
-    StorageObjectPtr st_obj_ptr =
-        std::make_shared<Instrument>(Instrument(Instrument::Type::PICKAXE, 2));
-
-    hand_vector[0].setObject(st_obj_ptr);
-
-    st_obj_ptr =
-        std::make_shared<Instrument>(Instrument(Instrument::Type::AXE, 2));
-
-    hand_vector[1].setObject(st_obj_ptr);
 
     clock_recharge.restart();
 }
@@ -480,19 +472,50 @@ convertToStorageObjectPtr(const std::shared_ptr<DroppedObject>& dropped_object)
     if (dropped_object->getGeneralType() ==
         StorageObject::GeneralType::RESOURCE)
     {
-        return std::make_shared<Resource>(
-            std::reinterpret_pointer_cast<Resource>(dropped_object)->getType());
+        return std::make_shared<Resource>(Resource(dropped_object->getType()));
     }
     else if (dropped_object->getGeneralType() ==
              StorageObject::GeneralType::INSTRUMENT)
     {
-        return std::make_shared<Instrument>(
-            std::reinterpret_pointer_cast<Instrument>(dropped_object)
-                ->getType(),
-            2);
+        return std::make_shared<Instrument>(Instrument(
+            dropped_object->getType(),
+            std::static_pointer_cast<DroppedInstrument>(dropped_object)
+                ->getLevel()));
     }
     return std::make_shared<StorageObject>(
         StorageObject(StorageObject::Type::HAND));
+}
+
+std::shared_ptr<DroppedObject>
+convertToDroppedObjectPtr(const StorageObjectPtr& storage_object, int count,
+                          const sf::Vector2f& position)
+{
+    try
+    {
+        /* code */
+        if (storage_object->getGeneralType() ==
+            StorageObject::GeneralType::RESOURCE)
+        {
+            return std::make_shared<DroppedResource>(
+                DroppedResource(storage_object->getType(), count, position));
+        }
+        else if (storage_object->getGeneralType() ==
+                 StorageObject::GeneralType::INSTRUMENT)
+        {
+            return std::make_shared<DroppedInstrument>(DroppedInstrument(
+                storage_object->getType(),
+                std::static_pointer_cast<Instrument>(storage_object)->geLevel(),
+                position));
+        }
+        else
+        {
+            throw std::exception("can not convert");
+        }
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
 }
 
 void
@@ -503,13 +526,10 @@ Player::deleteIngredients(const std::vector<StorageCell>& ing_vec)
 
     for (const auto& obj : ing_vec)
     {
-        if (obj.getObject()->getType() != StorageObject::Type::HAND)
-        {
-            data[obj.getObject()->getType()] += obj.getCount();
+        data[obj.getObject()->getType()] += obj.getCount();
 
-            // std::cout << int(obj.getObject()->getType()) << " "
-            //           << obj.getCount() << '\n';
-        }
+        // std::cout << int(obj.getObject()->getType()) << " "
+        //           << obj.getCount() << '\n';
     }
 
     for (int i = 0; i < inventory.size(); ++i)
@@ -534,20 +554,20 @@ Player::deleteIngredients(const std::vector<StorageCell>& ing_vec)
     for (int i = 0; i < hand_vector.size(); ++i)
     {
 
-        int remainder =
-            data[inventory[i].getObject()->getType()] - inventory[i].getCount();
+        int remainder = data[inventory[i].getObject()->getType()] -
+                        hand_vector[i].getCount();
         // std::cout << data[inventory[i].getObject()->getType()] << "  "
         //           << inventory[i].getCount() << '\n';
 
         if (remainder <= 0)
         {
-            inventory[i].setCount(-remainder);
-            data[inventory[i].getObject()->getType()] = 0;
+            hand_vector[i].setCount(-remainder);
+            data[hand_vector[i].getObject()->getType()] = 0;
         }
         else
         {
-            inventory[i].setCount(0);
-            data[inventory[i].getObject()->getType()] = remainder;
+            hand_vector[i].setCount(0);
+            data[hand_vector[i].getObject()->getType()] = remainder;
         }
     }
 }

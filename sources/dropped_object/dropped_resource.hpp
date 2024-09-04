@@ -7,7 +7,8 @@
 class DroppedResource : public DroppedObject
 {
 public:
-    DroppedResource(StorageObject::Type tt);
+    DroppedResource(StorageObject::Type tt, int c,
+                    const sf::Vector2f& pos);
 
     StorageObject::GeneralType getGeneralType() const override;
 

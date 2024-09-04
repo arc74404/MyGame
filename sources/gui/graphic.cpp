@@ -8,6 +8,7 @@
 #include "world/world.hpp"
 
 #include "gui.hpp"
+#include "text_button.hpp"
 #include "texture_storage.hpp"
 
 Gui::Graphic::Graphic()
@@ -222,20 +223,47 @@ void
 Gui::Graphic::display()
 {
     Gui::getInstance()->m_window.clear();
-
-    drawWorld();
-
-    player_interface.drawInterface();
-
-    if (inventory_interface.getStatus() == InventoryInterface::Status::OPEN)
+    switch (Menu::getOpenMenuType())
     {
-        Gui::getInstance()->graphic.inventory_interface.drawFullInventory();
-        Gui::getInstance()->graphic.craft_menu_interface.draw();
+        case Menu::Type::MAIN:
+            main_menu.draw();
+            break;
+        case Menu::Type::PAUSE:
+            // main_menu.draw();
+            break;
+
+        default:
+            drawWorld();
+
+            player_interface.drawInterface();
+
+            if (inventory_interface.getStatus() ==
+                InventoryInterface::Status::OPEN)
+            {
+                Gui::getInstance()
+                    ->graphic.inventory_interface.drawFullInventory();
+                Gui::getInstance()->graphic.craft_menu_interface.draw();
+            }
+            else
+            {
+                Gui::getInstance()
+                    ->graphic.inventory_interface.drawUsingCells();
+            }
+
+            break;
     }
-    else
-    {
-        Gui::getInstance()->graphic.inventory_interface.drawUsingCells();
-    }
+
+    // TextButton text_button;
+    // text_button.setTexture(
+    //     TextureStorage::getInstance()->text_button_texture.getTexturePtr());
+    // text_button.setTextureRect(
+    //     TextureStorage::getInstance()
+    //         ->text_button_texture[BaseButton::Status::HIGHLIGHTED][0]);
+    // text_button.setSize({300, 50});
+    // text_button.setPosition({300, 450});
+
+    // text_button.setText("hellortt");
+    // text_button.draw();
 
     Gui::getInstance()->m_window.display();
 }
@@ -266,11 +294,19 @@ Gui::Graphic::getScope()
 }
 
 void
+Gui::Graphic::createMainMenu()
+{
+}
+
+void
 Gui::Graphic::create()
 {
     player_interface.create();
     inventory_interface.create();
     craft_menu_interface.create();
+
+    main_menu.create();
+    main_menu.open();
 
     zoom(2.5);
 }

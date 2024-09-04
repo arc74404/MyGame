@@ -15,11 +15,26 @@ public:
     void loadAllTextures();
 
     sf::Texture indicator_border_texture;
+
+    sf::Texture main_menu_background_texture;
+
+    //////////////////////////////////////////////
     MyTexture<BaseButton::Status> inventory_cell_texture;
+    //////////////////////////////////////////////
     MyTexture<BaseButton::Status> arrow_button_texture;
+    //////////////////////////////////////////////
+    MyTexture<BaseButton::Status> text_button_texture;
+    ///////////////////////////////////////////////
+    MyTexture<BaseButton::Status> games_button_texture;
+    ///////////////////////////////////////////////
+    MyTexture<BaseButton::Status> rename_button_texture;
+    ///////////////////////////////////////////////
     MyTexture<StorageObject::Type> storage_objects_texture;
+    //////////////////////////////////////////////
     MyTexture<Player::Status> hero_texture;
+    ///////////////////////////////////////////////
     MyTexture<PhysicalObject::Type> physical_object_texture;
+    ////////////////////////////////////////////////
     MyTexture<char> char_texture;
 
 private:

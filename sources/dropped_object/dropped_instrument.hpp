@@ -9,9 +9,9 @@
 class DroppedInstrument : public DroppedObject
 {
 public:
-    DroppedInstrument(StorageObject::Type tt, int ll);
+    DroppedInstrument(StorageObject::Type tt, int ll, const sf::Vector2f& pos);
 
-    int geLevel();
+    int getLevel();
 
     StorageObject::GeneralType getGeneralType() const override;
 

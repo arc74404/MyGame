@@ -11,7 +11,9 @@ public:
 
     static float getLength();
 
-    DroppedObject(StorageObject::Type tt);
+    // DroppedObject(StorageObject::Type tt);
+
+    DroppedObject(StorageObject::Type tt, int count, const sf::Vector2f& pos);
 
     void setPosition(const sf::Vector2f& pos);
 

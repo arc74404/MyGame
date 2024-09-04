@@ -257,7 +257,7 @@ void
 TextureStorage::loadButtonTextures()
 {
     arrow_button_texture.loadFromFile(
-        "C:/Users/arsbo/source/repos/game2/resources/arrow_button.png");
+        "C:/Users/arsbo/source/repos/game2/resources/buttons.png");
 
     sf::IntRect r = {27, 11, 88, 116};
 
@@ -285,6 +285,52 @@ TextureStorage::loadButtonTextures()
     reverse_int_rect.height *= -1;
     arrow_button_texture[BaseButton::Status::SHINE].emplace_back(
         reverse_int_rect);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    text_button_texture.loadFromFile(
+        "C:/Users/arsbo/source/repos/game2/resources/buttons.png");
+
+    r = {27, 164, 494, 90};
+    text_button_texture[BaseButton::Status::NOT_SHINE].emplace_back(r);
+
+    r.top += 99;
+
+    text_button_texture[BaseButton::Status::HIGHLIGHTED].emplace_back(r);
+
+    r.top += 95;
+
+    text_button_texture[BaseButton::Status::SHINE].emplace_back(r);
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    games_button_texture.loadFromFile(
+        "C:/Users/arsbo/source/repos/game2/resources/buttons.png");
+
+    r = {27, 460, 345, 160};
+    games_button_texture[BaseButton::Status::NOT_SHINE].emplace_back(r);
+
+    r.left += 367;
+
+    games_button_texture[BaseButton::Status::HIGHLIGHTED].emplace_back(r);
+
+    r.left += 369;
+
+    games_button_texture[BaseButton::Status::SHINE].emplace_back(r);
+    /////////////////////////////////////////////////////////////////////////////////////
+
+    rename_button_texture.loadFromFile(
+        "C:/Users/arsbo/source/repos/game2/resources/buttons.png");
+
+    r = {27, 900, 600, 700};
+    rename_button_texture[BaseButton::Status::NOT_SHINE].emplace_back(r);
+
+    r.left += 367;
+
+    rename_button_texture[BaseButton::Status::HIGHLIGHTED].emplace_back(r);
+
+    r.left += 369;
+
+    rename_button_texture[BaseButton::Status::SHINE].emplace_back(r);
 }
 
 void
@@ -297,4 +343,7 @@ TextureStorage::loadAllTextures()
     loadIndicatorTexture();
     loadPlayerInterfaceTextures();
     loadButtonTextures();
+
+    main_menu_background_texture.loadFromFile(
+        "C:/Users/arsbo/source/repos/game2/resources/main_menu_background.png");
 }

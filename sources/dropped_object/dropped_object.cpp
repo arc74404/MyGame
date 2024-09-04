@@ -24,17 +24,17 @@ getScatteredPosition(const sf::Vector2f& pos, float max_distance)
     return new_pos;
 }
 
-DroppedResource
-createDroppedResource(StorageObject::Type type, const sf::Vector2f& pos,
-                      int count)
-{
-    DroppedResource dr(type);
+// DroppedResource
+// createDroppedResource(StorageObject::Type type, const sf::Vector2f& pos,
+//                       int count)
+// {
+//     DroppedResource dr(type);
 
-    dr.setPosition(pos);
-    dr.setCount(count);
+//     dr.setPosition(pos);
+//     dr.setCount(count);
 
-    return dr;
-}
+//     return dr;
+// }
 
 std::vector<std::shared_ptr<DroppedObject>>
 getDroppedObjectPtrVector(const sf::Vector2f& pos, const PhysicalObjectPtr& obj)
@@ -49,37 +49,36 @@ getDroppedObjectPtrVector(const sf::Vector2f& pos, const PhysicalObjectPtr& obj)
     {
         case PhysicalObject::Type::STONE:
             result_vec.emplace_back(std::make_shared<DroppedResource>(
-                createDroppedResource(StorageObject::Type::STONE, pos, 3)));
+                DroppedResource(StorageObject::Type::STONE, 3, pos)));
             break;
 
         case PhysicalObject::Type::APPLE_TREE:
             result_vec.emplace_back(std::make_shared<DroppedResource>(
-                createDroppedResource(StorageObject::Type::WOOD, pos, 2)));
+                DroppedResource(StorageObject::Type::WOOD, 2, pos)));
 
             result_vec.emplace_back(std::make_shared<DroppedResource>(
-                createDroppedResource(StorageObject::Type::APPLE, pos, 5)));
+                DroppedResource(StorageObject::Type::APPLE, 5, pos)));
 
             break;
 
         case PhysicalObject::Type::BIRCH_TREE:
             result_vec.emplace_back(std::make_shared<DroppedResource>(
-                createDroppedResource(StorageObject::Type::WOOD, pos, 2)));
+                DroppedResource(StorageObject::Type::WOOD, 2, pos)));
 
             break;
 
         case PhysicalObject::Type::BUSH_BLUEBERRY:
             result_vec.emplace_back(std::make_shared<DroppedResource>(
-                createDroppedResource(StorageObject::Type::WOOD, pos, 2)));
+                DroppedResource(StorageObject::Type::WOOD, 2, pos)));
             result_vec.emplace_back(std::make_shared<DroppedResource>(
-                createDroppedResource(StorageObject::Type::BLUEBERRY, pos, 4)));
+                DroppedResource(StorageObject::Type::BLUEBERRY, 4, pos)));
             break;
 
         case PhysicalObject::Type::BUSH_STRAWBERRY:
             result_vec.emplace_back(std::make_shared<DroppedResource>(
-                createDroppedResource(StorageObject::Type::WOOD, pos, 2)));
-            result_vec.emplace_back(
-                std::make_shared<DroppedResource>(createDroppedResource(
-                    StorageObject::Type::STRAWBERRY, pos, 4)));
+                DroppedResource(StorageObject::Type::WOOD, 2, pos)));
+            result_vec.emplace_back(std::make_shared<DroppedResource>(
+                DroppedResource(StorageObject::Type::STRAWBERRY, 4, pos)));
             break;
 
         default:
@@ -103,9 +102,12 @@ DroppedObject::getLength()
     return length;
 }
 
-DroppedObject::DroppedObject(StorageObject::Type tt)
+DroppedObject::DroppedObject(StorageObject::Type tt, int count,
+                             const sf::Vector2f& pos)
 {
-    m_type = tt;
+    m_type     = tt;
+    m_count    = count;
+    m_position = pos;
 }
 
 void

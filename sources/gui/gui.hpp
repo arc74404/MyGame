@@ -12,6 +12,7 @@
 #include "is_key_button_clicked_off.hpp"
 #include "my_texture.hpp"
 #include "rectangle_button.hpp"
+#include "text_button.hpp"
 
 class Gui
 {
@@ -38,12 +39,16 @@ private:
 
     void handleInventoryActions();
 
+    void handleMenuActions();
+
     sf::Event m_event;
 
     sf::RenderWindow m_window;
 
     class Graphic
     {
+        friend void Gui::handleMenuActions();
+
         friend void Gui::handleInventoryActions();
 
         friend void Gui::handlePlayerActions();
@@ -64,6 +69,89 @@ private:
         sf::Vector2f getPlayerPositionInWindow();
 
         void create();
+
+        class Menu
+        {
+        public:
+            enum class Type
+            {
+                NONE  = 0,
+                MAIN  = 1,
+                PAUSE = 2
+            };
+
+            Menu(Type t);
+
+            static Type getOpenMenuType();
+
+            void open();
+
+            // void addButton(const std::shared_ptr<BaseButton>&);
+
+            virtual void draw();
+
+            virtual void update() = 0;
+
+            virtual void create() = 0;
+
+        protected:
+            static Type open_menu_type;
+
+            Type m_type;
+
+            sf::RectangleShape background;
+
+            // std::vector<std::shared_ptr<BaseButton>> button_vector;
+        };
+
+        class MainMenu : public Menu
+        {
+        public:
+            MainMenu();
+
+            void draw() override;
+
+            void create() override;
+
+            void update() override;
+
+        private:
+            RectangleButton games_button;
+        };
+
+        class GamesMenu : public Menu
+        {
+        public:
+            GamesMenu();
+
+            void draw() override;
+
+            void create() override;
+
+            void update() override;
+
+        private:
+            class WorldLaunchInterface
+            {
+            public:
+                WorldLaunchInterface();
+
+                void draw();
+
+                void setSize(const sf::Vector2f& s);
+
+                void setPosition(const sf::Vector2f& p);
+
+                sf::Vector2f getPosition();
+
+            private:
+                TextButton world_name;
+                RectangleButton rename_button;
+                RectangleButton run_button;
+            };
+
+            std::vector<WorldLaunchInterface> world_launch_interface_list;
+        };
 
         class CraftMenuInterface
         {
@@ -200,8 +288,8 @@ private:
             void close();
 
             void updateTransfer(int index, StorageCell& st_cell,
-                                TransferCell::StorageType storage_type);
-
+                                TransferCell::StorageType storage_type,
+                                bool is_last_cel);
 
             void updateStorageObjectTexture(
                 const StorageCell& st_cell,
@@ -353,6 +441,11 @@ private:
         InventoryInterface inventory_interface;
 
         CraftMenuInterface craft_menu_interface;
+
+        MainMenu main_menu;
+        GamesMenu games_menu;
+
+        void createMainMenu();
 
         void drawWorld();
     };

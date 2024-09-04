@@ -1,13 +1,14 @@
 #include "dropped_instrument.hpp"
 
-DroppedInstrument::DroppedInstrument(StorageObject::Type tt, int ll)
-    : DroppedObject(tt)
+DroppedInstrument::DroppedInstrument(StorageObject::Type tt, int ll,
+                                     const sf::Vector2f& pos)
+    : DroppedObject(tt, 1, pos)
 {
     m_level = ll;
 }
 
 int
-DroppedInstrument::geLevel()
+DroppedInstrument::getLevel()
 {
     return m_level;
 }

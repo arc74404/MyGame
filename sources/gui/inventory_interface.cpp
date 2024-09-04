@@ -257,11 +257,21 @@ Gui::Graphic::InventoryInterface::updateStorageObjectTexture(
 
     inv_cell_button.setInventoryObjectTextureRect(int_rect);
 }
+bool
+isPointInRectangle(const sf::Vector2f& point, const sf::Vector2f& position,
+                   const sf::Vector2f& size);
+std::shared_ptr<DroppedObject>
+convertToDroppedObjectPtr(const StorageObjectPtr& storage_object, int count,
+                          const sf::Vector2f& position);
 
 void
 Gui::Graphic::InventoryInterface::updateTransfer(
-    int index, StorageCell& st_cell, TransferCell::StorageType storage_type)
+    int index, StorageCell& st_cell, TransferCell::StorageType storage_type,
+    bool is_last_cell)
 {
+
+    static bool was_action = false;
+
     if (storage_type == TransferCell::StorageType::HAND)
     {
         if (is_left_clicked_off() &&
@@ -269,7 +279,9 @@ Gui::Graphic::InventoryInterface::updateTransfer(
                 Gui::getInstance()->getMousePosition()) &&
             transfer_cell.isClear())
         {
-            std::cout << "setData HAND\n";
+            // std::cout << "setData HAND\n";
+            // can_drop = false;
+            was_action = true;
             transfer_cell.setData(TransferCell::StorageType::HAND, index,
                                   st_cell.getObject(), st_cell.getCount());
             st_cell.clear();
@@ -279,8 +291,12 @@ Gui::Graphic::InventoryInterface::updateTransfer(
             if (hand_cell_button_vector[index].isPointInButton(
                     Gui::getInstance()->getMousePosition()))
             {
+                // can_drop = false;
+                was_action = true;
                 if (st_cell.getObject()->getType() ==
-                    transfer_cell.getObject()->getType())
+                        transfer_cell.getObject()->getType() &&
+                    transfer_cell.getObject()->getGeneralType() !=
+                        StorageObject::GeneralType::INSTRUMENT)
                 {
                     int remainder = transfer_cell.getCount() +
                                     st_cell.getCount() -
@@ -338,6 +354,7 @@ Gui::Graphic::InventoryInterface::updateTransfer(
             }
         }
     }
+    //////////////////////////////////////////////////////////////////////////////////////////////////
     if (storage_type == TransferCell::StorageType::INVENTORY)
     {
         if (is_left_clicked_off() &&
@@ -345,7 +362,7 @@ Gui::Graphic::InventoryInterface::updateTransfer(
                 Gui::getInstance()->getMousePosition()) &&
             transfer_cell.isClear())
         {
-            std::cout << "setData INVENTORY\n";
+            was_action = true;
             transfer_cell.setData(TransferCell::StorageType::INVENTORY, index,
                                   st_cell.getObject(), st_cell.getCount());
             st_cell.clear();
@@ -355,8 +372,11 @@ Gui::Graphic::InventoryInterface::updateTransfer(
             if (inventory_cell_button_vector[index].isPointInButton(
                     Gui::getInstance()->getMousePosition()))
             {
+                was_action = true;
                 if (st_cell.getObject()->getType() ==
-                    transfer_cell.getObject()->getType())
+                        transfer_cell.getObject()->getType() &&
+                    transfer_cell.getObject()->getGeneralType() !=
+                        StorageObject::GeneralType::INSTRUMENT)
                 {
                     int remainder = transfer_cell.getCount() +
                                     st_cell.getCount() -
@@ -414,6 +434,21 @@ Gui::Graphic::InventoryInterface::updateTransfer(
             }
         }
     }
+    // std::cout << is_last_cell << was_action << is_left_clicked_off() << '\n';
+
+    if (is_last_cell && is_left_clicked_off() && (!transfer_cell.isClear()))
+    {
+        if (!was_action)
+        {
+            // std::cout << "drop\n";
+            World::getInstance()->setDroppedObject(convertToDroppedObjectPtr(
+                transfer_cell.getObject(), transfer_cell.getCount(),
+                Player::getInstance()->getPosition()));
+            transfer_cell.clear();
+        }
+        // std::cout << was_action << '\n';
+        was_action = false;
+    }
 }
 
 void
@@ -468,36 +503,12 @@ Gui::Graphic::InventoryInterface::update()
     }
     else if (status == Status::OPEN)
     {
-        // static const BaseButton* t1 = &up_arrow_button;
-        // static const BaseButton* t2 = &down_arrow_button;
-        // static isDefaultButtonClickedOff
-        // is_up_arrow_button_clicked_off(t1); static
-        // isDefaultButtonClickedOff is_down_arrow_button_clicked_off(t2);
-        // if (is_up_arrow_button_clicked_off())
-        // {
-        //     lowerShift();
-        // }
-        // else if (is_down_arrow_button_clicked_off())
-        // {
-        //     raiseShift();
-        // }
         if (is_tab_clicked_off_map())
         {
             close();
             goto end;
         }
-        // up_arrow_button.update();
-        // down_arrow_button.update();
-        // up_arrow_button.setTextureRect(
-        //     up_down_button_texture[up_arrow_button.getStatus()][0]);
-        // sf::IntRect reverse_int_rect =
-        //     up_down_button_texture[down_arrow_button.getStatus()][0];
-        // reverse_int_rect.top += reverse_int_rect.height;
-        // reverse_int_rect.height *= -1;
-        // down_arrow_button.setTextureRect(reverse_int_rect);
 
-        // static isDefaultButtonClickedOff
-        // is_inventory_cell_button_clicked_off;
         for (int i = 0; i < inventory_cell_button_vector.size(); ++i)
         {
             inventory_cell_button_vector[i].update();
@@ -516,7 +527,8 @@ Gui::Graphic::InventoryInterface::update()
             StorageCell& st_cell =
                 Player::getInstance()->getInventoryCell(index_inventory);
 
-            updateTransfer(i, st_cell, TransferCell::StorageType::INVENTORY);
+            updateTransfer(i, st_cell, TransferCell::StorageType::INVENTORY,
+                           false);
             updateStorageObjectTexture(st_cell,
                                        inventory_cell_button_vector[i]);
         }
@@ -535,7 +547,8 @@ Gui::Graphic::InventoryInterface::update()
 
             StorageCell& st_cell = Player::getInstance()->getHandCell(i);
 
-            updateTransfer(i, st_cell, TransferCell::StorageType::HAND);
+            updateTransfer(i, st_cell, TransferCell::StorageType::HAND,
+                           i == hand_cell_button_vector.size() - 1);
             updateStorageObjectTexture(st_cell, hand_cell_button_vector[i]);
         }
         // intermediate_buffer.update();

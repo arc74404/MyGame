@@ -178,6 +178,23 @@ World::update()
 }
 
 void
+World::setDroppedObject(const std::shared_ptr<DroppedObject> do_ptr)
+{
+
+    float loc_size = Location::getLength() * WorldCell::getLength();
+
+    // std::cout << do_ptr_vec.size() << '\n';
+
+    // std::cout << int(do_ptr_vec[i]->getPosition().x) << " "
+    //           << int(do_ptr_vec[i]->getPosition().y) << '\n';
+
+    Location& loc = location_matrix[int(do_ptr->getPosition().x / loc_size)]
+                                   [int(do_ptr->getPosition().y / loc_size)];
+
+    loc.addDroppedObject(do_ptr);
+}
+
+void
 World::setSize(int l)
 {
     try

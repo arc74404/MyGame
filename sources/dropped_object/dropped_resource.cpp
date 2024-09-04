@@ -1,6 +1,8 @@
 #include "dropped_resource.hpp"
 
-DroppedResource::DroppedResource(StorageObject::Type tt) : DroppedObject(tt)
+DroppedResource::DroppedResource(StorageObject::Type tt, int c,
+                                 const sf::Vector2f& pos)
+    : DroppedObject(tt, c, pos)
 {
 }
 

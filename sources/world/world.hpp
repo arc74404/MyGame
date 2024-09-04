@@ -30,11 +30,12 @@ public:
 
     void setDroppedObject(
         const std::vector<std::shared_ptr<DroppedObject>>& do_ptr_vec);
+    void setDroppedObject(const std::shared_ptr<DroppedObject> do_ptr_vec);
 
     int getLength() const;
 
-    Location& getLocation(int x, int y) ;
-    Location& getLocation(const sf::Vector2f& coordinate) ;
+    Location& getLocation(int x, int y);
+    Location& getLocation(const sf::Vector2f& coordinate);
 
     sf::Vector2i getCellPosition(const sf::Vector2f& point_coordinate) const;
 
