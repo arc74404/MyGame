@@ -1,5 +1,6 @@
 #include "world.hpp"
 
+#include <fstream>
 #include <iostream>
 
 #include "dropped_object/dropped_object.hpp"
@@ -274,6 +275,18 @@ World::setObject(const sf::Vector2i& obj_pos, PhysicalObjectPtr po_ptr)
     }
 
     return true;
+}
+
+void
+World::saveToFile(std::ofstream& output_file)
+{
+    output_file.write((char*)&location_matrix, sizeof(LocationMatrix));
+    output_file.write((char*)&updatable_cell_set, sizeof(std::set<WorldCell*>));
+}
+
+void
+World::loadFromFile(std::ifstream& input_file)
+{
 }
 
 int

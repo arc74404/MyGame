@@ -77,7 +77,8 @@ private:
             {
                 NONE  = 0,
                 MAIN  = 1,
-                PAUSE = 2
+                PAUSE = 2,
+                GAMES = 3
             };
 
             Menu(Type t);
@@ -142,12 +143,14 @@ private:
 
                 void setPosition(const sf::Vector2f& p);
 
+                void update();
+
                 sf::Vector2f getPosition();
 
             private:
                 TextButton world_name;
                 RectangleButton rename_button;
-                RectangleButton run_button;
+                RectangleButton save_button;
             };
 
             std::vector<WorldLaunchInterface> world_launch_interface_list;
@@ -444,8 +447,6 @@ private:
 
         MainMenu main_menu;
         GamesMenu games_menu;
-
-        void createMainMenu();
 
         void drawWorld();
     };

@@ -71,6 +71,10 @@ public:
     bool checkIngredientsSufficiency(const std::vector<StorageCell>&);
 
     void take(const CraftMenu::CraftRow&);
+
+    void saveToFile(std::ofstream& output_file);
+
+    void loadFromFile(std::ifstream& input_file);
     ////////////////////////////
 
     StorageCell& getInventoryCell(int index);

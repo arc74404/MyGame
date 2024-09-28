@@ -12,8 +12,6 @@ public:
 
     std::shared_ptr<StorageObject> getCopyObject() const override;
 
-
-
 private:
 };
 

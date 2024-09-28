@@ -45,7 +45,7 @@ StorageObject::use(const WorldCell& world_cell)
     }
 }
 
-StorageObjectPtr
+std::shared_ptr<StorageObject>
 StorageObject::getCopyObject() const
 {
     return std::make_shared<StorageObject>(StorageObject(Type::HAND));

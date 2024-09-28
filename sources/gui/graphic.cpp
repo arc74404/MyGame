@@ -228,8 +228,8 @@ Gui::Graphic::display()
         case Menu::Type::MAIN:
             main_menu.draw();
             break;
-        case Menu::Type::PAUSE:
-            // main_menu.draw();
+        case Menu::Type::GAMES:
+            games_menu.draw();
             break;
 
         default:
@@ -293,10 +293,6 @@ Gui::Graphic::getScope()
     return scope;
 }
 
-void
-Gui::Graphic::createMainMenu()
-{
-}
 
 void
 Gui::Graphic::create()
@@ -307,6 +303,8 @@ Gui::Graphic::create()
 
     main_menu.create();
     main_menu.open();
+
+    games_menu.create();
 
     zoom(2.5);
 }

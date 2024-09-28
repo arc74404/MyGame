@@ -2,7 +2,7 @@
 #include "text_button.hpp"
 #include "texture_storage.hpp"
 
-Gui::Graphic::GamesMenu::GamesMenu() : Menu(Menu::Type::MAIN)
+Gui::Graphic::GamesMenu::GamesMenu() : Menu(Menu::Type::GAMES)
 {
 }
 // std::shared_ptr<BaseButton> b;
@@ -67,6 +67,10 @@ Gui::Graphic::GamesMenu::create()
 void
 Gui::Graphic::GamesMenu::update()
 {
+    for (int i = 0; i < world_launch_interface_list.size(); ++i)
+    {
+        world_launch_interface_list[i].update();
+    }
 }
 
 void

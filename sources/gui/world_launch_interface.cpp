@@ -14,13 +14,37 @@ Gui::Graphic::GamesMenu::WorldLaunchInterface::WorldLaunchInterface()
     rename_button.setTextureRect(
         TextureStorage::getInstance()
             ->rename_button_texture[BaseButton::Status::NOT_SHINE][0]);
+
+    save_button.setTexture(
+        TextureStorage::getInstance()->update_button_texture.getTexturePtr());
+    save_button.setTextureRect(
+        TextureStorage::getInstance()
+            ->update_button_texture[BaseButton::Status::NOT_SHINE][0]);
 }
 void
 Gui::Graphic::GamesMenu::WorldLaunchInterface::draw()
 {
     world_name.draw();
     rename_button.draw();
-    run_button.draw();
+    save_button.draw();
+}
+
+void
+Gui::Graphic::GamesMenu::WorldLaunchInterface::update()
+{
+    world_name.update();
+    rename_button.update();
+    save_button.update();
+
+    world_name.setTextureRect(
+        TextureStorage::getInstance()
+            ->text_button_texture[world_name.getStatus()][0]);
+    rename_button.setTextureRect(
+        TextureStorage::getInstance()
+            ->rename_button_texture[rename_button.getStatus()][0]);
+    save_button.setTextureRect(
+        TextureStorage::getInstance()
+            ->update_button_texture[save_button.getStatus()][0]);
 }
 
 sf::Vector2f
@@ -38,7 +62,7 @@ Gui::Graphic::GamesMenu::WorldLaunchInterface::setSize(const sf::Vector2f& s)
 
     world_name.setSize({s.x * x1, s.y});
     rename_button.setSize({s.x * x2, s.y});
-    run_button.setSize({s.x * x3, s.y});
+    save_button.setSize({s.x * x3, s.y});
 
     setPosition(getPosition());
 }
@@ -51,6 +75,6 @@ Gui::Graphic::GamesMenu::WorldLaunchInterface::setPosition(
 
     rename_button.setPosition({p.x + world_name.getSize().x, p.y});
 
-    run_button.setPosition(
+    save_button.setPosition(
         {p.x + world_name.getSize().x + rename_button.getSize().x, p.y});
 }

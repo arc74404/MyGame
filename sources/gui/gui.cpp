@@ -96,7 +96,19 @@ Gui::handleInventoryActions()
 void
 Gui::handleMenuActions()
 {
-    graphic.main_menu.update();
+    switch (Gui::Graphic::Menu::getOpenMenuType())
+    {
+        case Gui::Graphic::Menu::Type::MAIN:
+            graphic.main_menu.update();
+            break;
+        case Gui::Graphic::Menu::Type::GAMES:
+            graphic.games_menu.update();
+            break;
+
+        default:
+            break;
+    }
+
     // graphic.craft_menu_interface.update();
 }
 

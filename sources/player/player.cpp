@@ -1,5 +1,6 @@
 #include "player.hpp"
 
+#include <fstream>
 #include <iostream>
 
 #include "app/app.hpp"
@@ -466,27 +467,27 @@ Player::stopMoving()
     m_status = Status::STAND;
 }
 
-StorageObjectPtr
+std::unique_ptr<StorageObject>
 convertToStorageObjectPtr(const std::shared_ptr<DroppedObject>& dropped_object)
 {
     if (dropped_object->getGeneralType() ==
         StorageObject::GeneralType::RESOURCE)
     {
-        return std::make_shared<Resource>(Resource(dropped_object->getType()));
+        return std::make_unique<Resource>(Resource(dropped_object->getType()));
     }
     else if (dropped_object->getGeneralType() ==
              StorageObject::GeneralType::INSTRUMENT)
     {
-        return std::make_shared<Instrument>(Instrument(
+        return std::make_unique<Instrument>(Instrument(
             dropped_object->getType(),
             std::static_pointer_cast<DroppedInstrument>(dropped_object)
                 ->getLevel()));
     }
-    return std::make_shared<StorageObject>(
+    return std::make_unique<StorageObject>(
         StorageObject(StorageObject::Type::HAND));
 }
 
-std::shared_ptr<DroppedObject>
+std::unique_ptr<DroppedObject>
 convertToDroppedObjectPtr(const StorageObjectPtr& storage_object, int count,
                           const sf::Vector2f& position)
 {
@@ -496,13 +497,13 @@ convertToDroppedObjectPtr(const StorageObjectPtr& storage_object, int count,
         if (storage_object->getGeneralType() ==
             StorageObject::GeneralType::RESOURCE)
         {
-            return std::make_shared<DroppedResource>(
+            return std::make_unique<DroppedResource>(
                 DroppedResource(storage_object->getType(), count, position));
         }
         else if (storage_object->getGeneralType() ==
                  StorageObject::GeneralType::INSTRUMENT)
         {
-            return std::make_shared<DroppedInstrument>(DroppedInstrument(
+            return std::make_unique<DroppedInstrument>(DroppedInstrument(
                 storage_object->getType(),
                 std::static_pointer_cast<Instrument>(storage_object)->geLevel(),
                 position));
@@ -731,7 +732,9 @@ Player::manipulate(Location& loc, const sf::Vector2f& mouse_coordinate)
                     std::pow((mouse_coordinate.y - player_position.y), 2) <=
                 std::pow(Player::getInstance()->getWorkRadius(), 2))
             {
-                if (take(dropped_object_vector[i]))
+                std::shared_ptr<DroppedObject> drobj;
+
+                if (take(drobj))
                 {
                     loc.destroyDroppedObject(i);
                 }
@@ -756,6 +759,36 @@ Player::checkIngredientsSufficiency(
     }
     // std::cout << "true\n";
     return true;
+}
+
+void
+Player::saveToFile(std::ofstream& output_file)
+{
+    output_file.write((char*)&movement_data, sizeof(MovementData));
+    output_file.write((char*)&collision_data, sizeof(CollisionData));
+    output_file.write((char*)&inventory, sizeof(Storage));
+    output_file.write((char*)&hand_vector, sizeof(Storage));
+    output_file.write((char*)&inventory_and_hand_data,
+                      sizeof(std::unordered_map<StorageObject::Type, int>));
+    output_file.write((char*)&clock_recharge, sizeof(sf::Clock));
+    output_file.write((char*)&time_recharge_seconds, sizeof(float));
+    output_file.write((char*)&hunger, sizeof(float));
+    output_file.write((char*)&health, sizeof(float));
+}
+
+void
+Player::loadFromFile(std::ifstream& input_file)
+{
+    input_file.read((char*)&movement_data, sizeof(MovementData));
+    input_file.read((char*)&collision_data, sizeof(CollisionData));
+    input_file.read((char*)&inventory, sizeof(Storage));
+    input_file.read((char*)&hand_vector, sizeof(Storage));
+    input_file.read((char*)&inventory_and_hand_data,
+                    sizeof(std::unordered_map<StorageObject::Type, int>));
+    input_file.read((char*)&clock_recharge, sizeof(sf::Clock));
+    input_file.read((char*)&time_recharge_seconds, sizeof(float));
+    input_file.read((char*)&hunger, sizeof(float));
+    input_file.read((char*)&health, sizeof(float));
 }
 
 int

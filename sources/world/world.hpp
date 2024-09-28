@@ -41,6 +41,10 @@ public:
 
     sf::Vector2f getCentreCoordinate() const;
 
+    void saveToFile(std::ofstream& output_file);
+
+    void loadFromFile(std::ifstream& input_file);
+
 private:
     World();
 

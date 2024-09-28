@@ -291,10 +291,10 @@ TextureStorage::loadButtonTextures()
     text_button_texture.loadFromFile(
         "C:/Users/arsbo/source/repos/game2/resources/buttons.png");
 
-    r = {27, 164, 494, 90};
+    r = {27, 166, 494, 86};
     text_button_texture[BaseButton::Status::NOT_SHINE].emplace_back(r);
 
-    r.top += 99;
+    r.top += 95;
 
     text_button_texture[BaseButton::Status::HIGHLIGHTED].emplace_back(r);
 
@@ -321,16 +321,31 @@ TextureStorage::loadButtonTextures()
     rename_button_texture.loadFromFile(
         "C:/Users/arsbo/source/repos/game2/resources/buttons.png");
 
-    r = {27, 900, 600, 700};
+    r = {25, 695, 788, 220};
     rename_button_texture[BaseButton::Status::NOT_SHINE].emplace_back(r);
 
-    r.left += 367;
+    r.left += 809;
 
     rename_button_texture[BaseButton::Status::HIGHLIGHTED].emplace_back(r);
 
-    r.left += 369;
+    r.left += 817;
 
     rename_button_texture[BaseButton::Status::SHINE].emplace_back(r);
+    /////////////////////////////////////////////////////////////////////////////////////
+
+    update_button_texture.loadFromFile(
+        "C:/Users/arsbo/source/repos/game2/resources/buttons.png");
+
+    r = {335, 12, 86, 116};
+    update_button_texture[BaseButton::Status::NOT_SHINE].emplace_back(r);
+
+    r.left += 104;
+
+    update_button_texture[BaseButton::Status::HIGHLIGHTED].emplace_back(r);
+
+    r.left += 104;
+
+    update_button_texture[BaseButton::Status::SHINE].emplace_back(r);
 }
 
 void

@@ -260,7 +260,7 @@ Gui::Graphic::InventoryInterface::updateStorageObjectTexture(
 bool
 isPointInRectangle(const sf::Vector2f& point, const sf::Vector2f& position,
                    const sf::Vector2f& size);
-std::shared_ptr<DroppedObject>
+std::unique_ptr<DroppedObject>
 convertToDroppedObjectPtr(const StorageObjectPtr& storage_object, int count,
                           const sf::Vector2f& position);
 
@@ -441,6 +441,7 @@ Gui::Graphic::InventoryInterface::updateTransfer(
         if (!was_action)
         {
             // std::cout << "drop\n";
+
             World::getInstance()->setDroppedObject(convertToDroppedObjectPtr(
                 transfer_cell.getObject(), transfer_cell.getCount(),
                 Player::getInstance()->getPosition()));

@@ -55,7 +55,7 @@ Instrument::getGeneralType() const
     return GeneralType::INSTRUMENT;
 }
 
-StorageObjectPtr
+std::shared_ptr<StorageObject>
 Instrument::getCopyObject() const
 {
     return std::make_shared<Instrument>(Instrument(this->m_type, m_level));
